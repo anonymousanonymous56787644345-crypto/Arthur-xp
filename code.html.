@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Studio de code — Arthur XP</title>
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#3a6ea5;font-family:Tahoma,Verdana,Segoe UI,sans-serif;font-size:14px;color:#000;overflow:hidden}
+  body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .win{display:flex;flex-direction:column;height:100%;background:#ece9d8;border:3px solid #0831d9;border-radius:8px 8px 0 0;overflow:hidden}
+  .title{display:flex;align-items:center;gap:8px;padding:6px 8px;color:#fff;font-weight:bold;
+    background:linear-gradient(#0a5fe0,#2a7cf0 8%,#0052d6 40%,#0041c2 90%,#0036a8);text-shadow:1px 1px #0a246a}
+  .title .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .xbtn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:24px;border:1px solid #fff;border-radius:4px;
+    background:linear-gradient(#e57a5a,#c4361c);color:#fff;font-weight:bold;text-decoration:none;font-size:15px}
+  .tabs{display:flex;gap:2px;padding:6px 6px 0;border-bottom:1px solid #919b9c}
+  .tab{flex:1;padding:7px 4px;border:1px solid #919b9c;border-bottom:none;border-radius:5px 5px 0 0;background:#f4f3ee;
+    font:inherit;font-weight:bold;color:#333}
+  .tab.on{background:#fff;border-top:3px solid #ffc83c;color:#000}
+  .bar{display:flex;flex-wrap:wrap;gap:5px;padding:6px}
+  .btn{padding:6px 10px;border:1px solid #003c74;border-radius:3px;background:linear-gradient(#fff,#ecebe6 60%,#d6d0c5);
+    font:inherit;color:#000}
+  .btn.run{background:linear-gradient(#7ed37e,#3fa63f);color:#fff;font-weight:bold;border-color:#1f6b1f}
+  .btn:active{filter:brightness(.9)}
+  #status{align-self:center;font-size:12px;color:#444;margin-left:auto}
+  .keys{display:flex;gap:4px;overflow-x:auto;padding:0 6px 6px;-webkit-overflow-scrolling:touch}
+  .keys button{flex:0 0 auto;min-width:34px;padding:6px 8px;border:1px solid #888;border-radius:3px;background:#fff;
+    font:13px Menlo,Consolas,monospace}
+  .main{flex:1;display:flex;flex-direction:column;min-height:0;padding:0 6px 6px;gap:6px}
+  #editor{flex:1.3;min-height:0;width:100%;resize:none;border:2px inset #7f9db9;background:#1e1e1e;color:#d4d4d4;
+    padding:8px;font:14px/1.45 Menlo,Consolas,monospace;tab-size:4;white-space:pre;overflow:auto}
+  .outhead{display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-size:12px;color:#333}
+  #out{flex:1;min-height:0;overflow:auto;border:2px inset #7f9db9;background:#000;color:#c0c0c0;padding:8px;
+    font:13px/1.4 Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
+  #out .err{color:#ff6b6b}#out .info{color:#6bb8ff}
+  #preview{flex:1;min-height:0;width:100%;border:2px inset #7f9db9;background:#fff;display:none}
+</style>
+</head>
+<body>
+<div class="win">
+  <div class="title">
+    <span>💻</span><span class="t">Studio de code — Arthur XP</span>
+    <a class="xbtn" href="./" title="Retour au bureau">✕</a>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-lang="python">🐍 Python</button>
+    <button class="tab" data-lang="js">⚡ JavaScript</button>
+    <button class="tab" data-lang="html">🌐 HTML</button>
+  </div>
+
+  <div class="bar">
+    <button class="btn run" id="run">▶ Exécuter</button>
+    <button class="btn" id="ex">📄 Exemple</button>
+    <button class="btn" id="clear">🧹 Effacer</button>
+    <button class="btn" id="save">💾 Sauver</button>
+    <span id="status"></span>
+  </div>
+
+  <div class="keys" id="keys"></div>
+
+  <div class="main">
+    <textarea id="editor" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false"></textarea>
+    <div class="outhead"><span id="outtitle">Console</span></div>
+    <div id="out"></div>
+    <iframe id="preview" sandbox="allow-scripts allow-modals"></iframe>
+  </div>
+</div>
+
+<script>
+const EXEMPLES = {
+  python:
+`# Python dans Arthur XP 🐍
+nom = input("Ton nom ? ")
+print("Salut", nom, "!")
+
+for i in range(1, 6):
+    print(i, "x 7 =", i * 7)
+
+import random
+print("Nombre mystère :", random.randint(1, 100))`,
+  js:
+`// JavaScript dans Arthur XP ⚡
+const nom = "Arthur";
+console.log("Bonjour " + nom + " !");
+
+for (let i = 1; i <= 5; i++) {
+  console.log(i + " au carré = " + i * i);
+}
+
+const fruits = ["pomme", "poire", "kiwi"];
+console.log(fruits.map(f => f.toUpperCase()));`,
+  html:
+`<!-- HTML + CSS + JS dans Arthur XP 🌐 -->
+<style>
+  body { font-family: Tahoma; background: #3a6ea5; color: white; text-align: center; padding: 30px; }
+  button { font-size: 18px; padding: 10px 20px; border-radius: 8px; }
+</style>
+
+<h1>Ma page à moi</h1>
+<p>Clics : <b id="n">0</b></p>
+<button onclick="n.textContent = +n.textContent + 1">Clique !</button>`
+};
+const KEYS = {
+  python: ["⇥", ":", "(", ")", "[", "]", "{", "}", "\"", "'", "=", "+", "-", "*", "/", "#", "<", ">", "_", ","],
+  js:     ["⇥", ";", "(", ")", "{", "}", "[", "]", "\"", "'", "`", "=", "=>", "+", "-", "*", "/", "<", ">", "!", "&", "|"],
+  html:   ["⇥", "<", ">", "/", "=", "\"", "'", "{", "}", ":", ";", "#", ".", "(", ")", "-"]
+};
+
+const ed = document.getElementById("editor"), out = document.getElementById("out"),
+      prev = document.getElementById("preview"), status = document.getElementById("status");
+let lang = "python", pyodide = null, pyLoading = null;
+
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } }
+};
+
+function print(txt, cls){
+  const line = document.createElement("div");
+  if (cls) line.className = cls;
+  line.textContent = txt;
+  out.appendChild(line);
+  out.scrollTop = out.scrollHeight;
+}
+
+function setLang(l){
+  store.set("axp-code-" + lang, ed.value);
+  lang = l;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.lang === l));
+  ed.value = store.get("axp-code-" + l) ?? EXEMPLES[l];
+  const isHtml = l === "html";
+  out.style.display = isHtml ? "none" : "block";
+  prev.style.display = isHtml ? "block" : "none";
+  document.getElementById("outtitle").textContent = isHtml ? "Aperçu" : "Console";
+  const k = document.getElementById("keys");
+  k.innerHTML = "";
+  KEYS[l].forEach(s => {
+    const b = document.createElement("button");
+    b.textContent = s;
+    b.addEventListener("mousedown", e => e.preventDefault());
+    b.addEventListener("touchstart", e => { e.preventDefault(); insert(s === "⇥" ? "    " : s); }, {passive:false});
+    b.addEventListener("click", () => insert(s === "⇥" ? "    " : s));
+    k.appendChild(b);
+  });
+  status.textContent = "";
+}
+
+function insert(s){
+  const a = ed.selectionStart, b = ed.selectionEnd;
+  ed.value = ed.value.slice(0, a) + s + ed.value.slice(b);
+  ed.selectionStart = ed.selectionEnd = a + s.length;
+  ed.focus();
+}
+
+ed.addEventListener("keydown", e => {
+  if (e.key === "Tab") { e.preventDefault(); insert("    "); }
+});
+
+async function loadPython(){
+  if (pyodide) return pyodide;
+  if (!pyLoading) {
+    pyLoading = (async () => {
+      print("Chargement de Python (la 1re fois, ça peut prendre 10-20 s)…", "info");
+      await new Promise((ok, ko) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
+        s.onload = ok; s.onerror = () => ko(new Error("Impossible de charger Python. Vérifie ta connexion Internet."));
+        document.head.appendChild(s);
+      });
+      const py = await loadPyodide();
+      py.setStdout({ batched: t => print(t) });
+      py.setStderr({ batched: t => print(t, "err") });
+      py.setStdin({ stdin: () => { const r = prompt("Entrée Python :"); return r === null ? "" : r; } });
+      print("Python est prêt ✅", "info");
+      pyodide = py;
+      return py;
+    })();
+    pyLoading.catch(() => { pyLoading = null; });
+  }
+  return pyLoading;
+}
+
+async function runPython(code){
+  const py = await loadPython();
+  try {
+    const r = await py.runPythonAsync(code);
+    if (r !== undefined && r !== null) print(String(r));
+  } catch (e) {
+    const msg = String(e.message || e).split("\n").filter(l => l.trim()).slice(-3).join("\n");
+    print(msg, "err");
+  }
+}
+
+async function runJS(code){
+  const fmt = v => typeof v === "string" ? v : (() => { try { return JSON.stringify(v); } catch(e){ return String(v); } })();
+  const fake = {
+    log: (...a) => print(a.map(fmt).join(" ")),
+    info: (...a) => print(a.map(fmt).join(" "), "info"),
+    warn: (...a) => print(a.map(fmt).join(" "), "info"),
+    error: (...a) => print(a.map(fmt).join(" "), "err")
+  };
+  try {
+    const fn = new Function("console", "return (async () => {\n" + code + "\n})()");
+    await fn(fake);
+  } catch (e) {
+    print((e.name || "Erreur") + " : " + e.message, "err");
+  }
+}
+
+document.getElementById("run").addEventListener("click", async () => {
+  const code = ed.value;
+  store.set("axp-code-" + lang, code);
+  if (lang === "html") { prev.srcdoc = code; return; }
+  out.innerHTML = "";
+  status.textContent = "En cours…";
+  try {
+    if (lang === "python") await runPython(code);
+    else await runJS(code);
+    status.textContent = "Terminé";
+  } catch (e) {
+    print(e.message, "err");
+    status.textContent = "Erreur";
+  }
+});
+
+document.getElementById("ex").addEventListener("click", () => {
+  if (ed.value.trim() && ed.value !== EXEMPLES[lang] && !confirm("Remplacer ton code par l'exemple ?")) return;
+  ed.value = EXEMPLES[lang];
+});
+document.getElementById("clear").addEventListener("click", () => {
+  out.innerHTML = ""; prev.srcdoc = ""; status.textContent = "";
+});
+document.getElementById("save").addEventListener("click", () => {
+  status.textContent = store.set("axp-code-" + lang, ed.value) ? "Sauvegardé 💾" : "Sauvegarde impossible";
+});
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => setLang(t.dataset.lang)));
+window.addEventListener("pagehide", () => store.set("axp-code-" + lang, ed.value));
+
+lang = "python";
+ed.value = store.get("axp-code-python") ?? EXEMPLES.python;
+setLang("python");
+</script>
+</body>
+</html>
