@@ -300,6 +300,11 @@ const WALLS=[['colline','Colline'],['nuit','Nuit'],['coucher','Coucher'],['bleu'
 function applyWall(){$('#wall').className='w-'+store.get('wall','colline')}
 
 /* ---------- APPS ---------- */
+function mkGoogle(b){b.style.overflow='hidden';b.style.display='flex';b.style.flexDirection='column';
+ b.innerHTML='<div style="display:flex;gap:6px;align-items:center;padding:4px 6px;background:#ece9d8;border-bottom:1px solid #aca899;font:12px Tahoma"><button class="btn" data-a="home">🏠 Accueil</button><button class="btn" data-a="safari" style="margin-left:auto">↗ Ouvrir dans Safari</button></div><iframe style="flex:1;width:100%;border:0;background:#fff"></iframe>';
+ const f=b.querySelector('iframe'),HOME='https://www.google.com/webhp?igu=1&hl=fr';f.src=HOME;
+ b.querySelector('[data-a=home]').onclick=()=>{f.src=HOME};
+ b.querySelector('[data-a=safari]').onclick=()=>window.open('https://www.google.com','_blank')}
 function mkCode(b){b.style.overflow='hidden';const f=document.createElement('iframe');f.src='code.html';f.title='Studio de code';
  f.style.cssText='display:block;width:100%;height:100%;border:0;background:#ece9d8';
  f.onload=()=>{try{const d=f.contentDocument,t=d&&d.querySelector('.title');if(t)t.style.display='none';const w=d&&d.querySelector('.win');if(w){w.style.border='0';w.style.borderRadius='0'}
@@ -310,6 +315,7 @@ const APPS={
  ie:{t:'Internet',i:'🌐',w:600,h:480,make:mkWeb},
  cmd:{t:'Invite de commandes',i:'⬛',w:560,h:380,make:mkCmd},
  code:{t:'Studio de code',i:'💻',w:640,h:560,make:mkCode},
+ google:{t:'Google',i:'🔍',w:620,h:560,make:mkGoogle},
  docs:{t:'Mes documents',i:'📁',w:500,h:360,make:mkDocs},
  notepad:{t:'Bloc-notes',i:'📝',w:440,h:340,make:mkNote},
  calc:{t:'Calculatrice',i:'🧮',w:270,h:360,make:mkCalc,fixed:1},
@@ -321,8 +327,10 @@ const APPS={
 };
 const DESK=['pc','ie','docs','cmd','code','notepad','calc','mines','paint','bin'];
 const icons=$('#icons');
-DESK.forEach(k=>{const a=APPS[k],d=document.createElement('div');d.className='ico';d.innerHTML=`<span>${a.i}</span><span>${a.t}</span>`;
- d.onclick=e=>{e.stopPropagation();document.querySelectorAll('.ico').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');open(k)};icons.appendChild(d)});
+function addIcon(k){if(icons.querySelector('[data-k="'+k+'"]'))return;const a=APPS[k],d=document.createElement('div');d.className='ico';d.dataset.k=k;d.innerHTML=`<span>${a.i}</span><span>${a.t}</span>`;
+ d.onclick=e=>{e.stopPropagation();document.querySelectorAll('.ico').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');open(k)};icons.appendChild(d)}
+DESK.forEach(addIcon);
+store.get('installed',[]).forEach(k=>{if(APPS[k])addIcon(k)});
 $('#wall').onclick=()=>{document.querySelectorAll('.ico').forEach(x=>x.classList.remove('sel'));closeStart()};
 
 /* start menu */
@@ -727,6 +735,8 @@ function mkCmd(b,w){
   run            Exécute le code écrit dans le Bloc-notes
   shutdown       Éteint l'ordinateur
   start [app]    Ouvre une app : ie, notepad, calc, paint, mines, pc, code
+  install [app]  Installe une app (ex : install google)
+  uninstall [app] Désinstalle une app
   tree           Affiche l'arborescence
   type [fichier] Affiche un fichier texte
   ver            Version du système
@@ -750,8 +760,24 @@ Attention : une boucle infinie bloque la page !`);break;
    case 'color':{const v=(arg||'07').toLowerCase();const bg=v.length>1?COLORS[v[0]]:'#000',fg=COLORS[v[v.length-1]];if(!fg||!bg)print('Couleur inconnue. Exemples : color a, color 1f, color 0e');else{box.style.background=bg;box.style.color=fg}break}
    case 'ipconfig':print('\nConfiguration IP de Arthur XP\n\nCarte Ethernet Connexion au réseau local :\n   Adresse IP. . . . . . . . . . . : 192.168.1.42\n   Masque de sous-réseau . . . . . : 255.255.255.0\n   Passerelle par défaut . . . . . : 192.168.1.1\n');break;
    case 'ping':{const h=arg||'arthur.xp';print(`\nEnvoi d'une requête 'ping' sur ${h} avec 32 octets de données :`);let i=0;const iv=setInterval(()=>{const ms=8+~~(Math.random()*30);print(`Réponse de ${h} : octets=32 temps=${ms} ms TTL=117`);if(++i===4){clearInterval(iv);print('\n(Simulation — Arthur XP n\'envoie pas de vrais pings.)\n')}},600);break}
-   case 'start':{const map={ie:'ie',internet:'ie',iexplore:'ie',notepad:'notepad',calc:'calc',paint:'paint',mspaint:'paint',mines:'mines',winmine:'mines',pc:'pc',explorer:'pc',cmd:'cmd',code:'code',studio:'code',python:'code',html:'code'};const k=map[arg.toLowerCase()];if(k)open(k);else print('Impossible de trouver « '+arg+' ». Essaie : ie, notepad, calc, paint, mines, pc, code');break}
+   case 'start':{const map={ie:'ie',internet:'ie',iexplore:'ie',notepad:'notepad',calc:'calc',paint:'paint',mspaint:'paint',mines:'mines',winmine:'mines',pc:'pc',explorer:'pc',cmd:'cmd',code:'code',studio:'code',python:'code',html:'code',google:'google',chrome:'google'};const k=map[arg.toLowerCase()];if(k==='google'&&!store.get('installed',[]).includes('google')){print('Google n\'est pas installé. Tape : install google');break}if(k)open(k);else print('Impossible de trouver « '+arg+' ». Essaie : ie, notepad, calc, paint, mines, pc, code');break}
    case 'iexplore':case 'notepad':case 'calc':case 'mspaint':case 'winmine':case 'explorer':run('start '+cmd);break;
+   case 'install':{const name=arg.toLowerCase();
+    if(!name){print('Utilisation : install [app]   ex : install google');break}
+    if(name!=='google'&&name!=='chrome'){print('Paquet « '+arg+' » introuvable. Disponible : google');break}
+    const inst=store.get('installed',[]);if(inst.includes('google')){print('Google est déjà installé. Tape : start google');break}
+    inp.disabled=true;print('Connexion à dl.google.com…');
+    const bar=document.createTextNode('');out.appendChild(bar);let n=0;
+    const t=setInterval(()=>{n+=Math.ceil(Math.random()*9);if(n>100)n=100;const f=Math.round(n/5);
+     bar.textContent='Téléchargement [' + '█'.repeat(f) + '░'.repeat(20-f) + '] ' + n + ' %\n';box.scrollTop=box.scrollHeight;
+     if(n>=100){clearInterval(t);print('Installation des fichiers…');
+      setTimeout(()=>{inst.push('google');store.set('installed',inst);addIcon('google');
+       print('✔ Google a été installé ! Une icône est sur ton bureau.');print('Lancement de Google…\n');inp.disabled=false;prompt();
+       setTimeout(()=>open('google'),500)},700)}},120);
+    break}
+   case 'uninstall':{const name=arg.toLowerCase();const inst=store.get('installed',[]);
+    if((name==='google'||name==='chrome')&&inst.includes('google')){store.set('installed',inst.filter(x=>x!=='google'));close('google');const ic=icons.querySelector('[data-k="google"]');ic&&ic.remove();print('Google a été désinstallé.')}
+    else print('Rien à désinstaller. Ex : uninstall google');break}
    case 'js':if(!arg)print('Utilisation : js [code]   ex : js 2+2');else runJS(arg);break;
    case 'run':{const code=store.get('note',NOTE_DEF);print('Exécution du Bloc-notes…\n');runJS(code,true);print('');break}
    case 'matrix':{let n=0;matrix=setInterval(()=>{print(Array.from({length:40},()=>Math.random()<.5?' ':String.fromCharCode(0x30A0+~~(Math.random()*96))).join(''));if(++n>60){clearInterval(matrix);matrix=null;print('\nRéveille-toi, Arthur…')}},60);box.style.color='#0f0';break}
