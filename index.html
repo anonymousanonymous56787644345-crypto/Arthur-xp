@@ -300,10 +300,16 @@ const WALLS=[['colline','Colline'],['nuit','Nuit'],['coucher','Coucher'],['bleu'
 function applyWall(){$('#wall').className='w-'+store.get('wall','colline')}
 
 /* ---------- APPS ---------- */
+function mkCode(b){b.style.overflow='hidden';const f=document.createElement('iframe');f.src='code.html';f.title='Studio de code';
+ f.style.cssText='display:block;width:100%;height:100%;border:0;background:#ece9d8';
+ f.onload=()=>{try{const d=f.contentDocument,t=d&&d.querySelector('.title');if(t)t.style.display='none';const w=d&&d.querySelector('.win');if(w){w.style.border='0';w.style.borderRadius='0'}
+  if(d&&/404|not found/i.test(d.title||''))b.innerHTML='<div style="padding:16px;font:14px Tahoma">Le fichier <b>code.html</b> est introuvable.<br><br>Vérifie sur GitHub qu\'il s\'appelle bien <b>code.html</b> (sans point à la fin).</div>'}catch(e){}};
+ b.appendChild(f)}
 const APPS={
  pc:{t:'Poste de travail',i:'🖥️',w:520,h:380,make:mkPC},
  ie:{t:'Internet',i:'🌐',w:600,h:480,make:mkWeb},
  cmd:{t:'Invite de commandes',i:'⬛',w:560,h:380,make:mkCmd},
+ code:{t:'Studio de code',i:'💻',w:640,h:560,make:mkCode},
  docs:{t:'Mes documents',i:'📁',w:500,h:360,make:mkDocs},
  notepad:{t:'Bloc-notes',i:'📝',w:440,h:340,make:mkNote},
  calc:{t:'Calculatrice',i:'🧮',w:270,h:360,make:mkCalc,fixed:1},
@@ -313,16 +319,16 @@ const APPS={
  settings:{t:"Propriétés d'affichage",i:'🖼️',w:380,h:420,make:mkSettings},
  about:{t:'À propos de Arthur XP',i:'ℹ️',w:340,h:300,make:mkAbout,fixed:1}
 };
-const DESK=['pc','ie','docs','cmd','notepad','calc','mines','paint','bin'];
+const DESK=['pc','ie','docs','cmd','code','notepad','calc','mines','paint','bin'];
 const icons=$('#icons');
 DESK.forEach(k=>{const a=APPS[k],d=document.createElement('div');d.className='ico';d.innerHTML=`<span>${a.i}</span><span>${a.t}</span>`;
  d.onclick=e=>{e.stopPropagation();document.querySelectorAll('.ico').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');open(k)};icons.appendChild(d)});
 $('#wall').onclick=()=>{document.querySelectorAll('.ico').forEach(x=>x.classList.remove('sel'));closeStart()};
 
 /* start menu */
-const SML=[['ie','Internet','Naviguer sur le Web'],['notepad','Bloc-notes','Écrire du texte'],['cmd','Invite de commandes','Coder en JavaScript'],['paint','Paint','Dessiner'],['calc','Calculatrice',''],['mines','Démineur','Jeu']];
+const SML=[['ie','Internet','Naviguer sur le Web'],['notepad','Bloc-notes','Écrire du texte'],['cmd','Invite de commandes','Coder en JavaScript'],['code','Studio de code','Python, JavaScript, HTML'],['paint','Paint','Dessiner'],['calc','Calculatrice',''],['mines','Démineur','Jeu']];
 const SMR=[['docs','Mes documents'],['pc','Poste de travail'],['settings','Panneau de configuration'],['about','Aide et support']];
-SML.forEach(([k,t,s],i)=>{const d=document.createElement('div');d.className='sm-i';d.innerHTML=`<em>${APPS[k].i}</em><div><b>${t}</b>${s?`<small>${s}</small>`:''}</div>`;d.onclick=()=>{closeStart();open(k)};$('#smL').appendChild(d);if(i===2){const s=document.createElement('div');s.className='sm-sep';$('#smL').appendChild(s)}});
+SML.forEach(([k,t,s],i)=>{const d=document.createElement('div');d.className='sm-i';d.innerHTML=`<em>${APPS[k].i}</em><div><b>${t}</b>${s?`<small>${s}</small>`:''}</div>`;d.onclick=()=>{closeStart();open(k)};$('#smL').appendChild(d);if(i===3){const s=document.createElement('div');s.className='sm-sep';$('#smL').appendChild(s)}});
 SMR.forEach(([k,t])=>{const d=document.createElement('div');d.className='sm-i';d.innerHTML=`<em>${APPS[k].i}</em>${t}`;d.onclick=()=>{closeStart();open(k)};$('#smR').appendChild(d)});
 $('#startbtn').onclick=e=>{e.stopPropagation();const on=$('#start').classList.toggle('on');$('#startbtn').classList.toggle('on',on)};
 function closeStart(){$('#start').classList.remove('on');$('#startbtn').classList.remove('on')}
@@ -720,7 +726,7 @@ function mkCmd(b,w){
   ping [site]    Teste une connexion
   run            Exécute le code écrit dans le Bloc-notes
   shutdown       Éteint l'ordinateur
-  start [app]    Ouvre une app : ie, notepad, calc, paint, mines, pc
+  start [app]    Ouvre une app : ie, notepad, calc, paint, mines, pc, code
   tree           Affiche l'arborescence
   type [fichier] Affiche un fichier texte
   ver            Version du système
@@ -744,7 +750,7 @@ Attention : une boucle infinie bloque la page !`);break;
    case 'color':{const v=(arg||'07').toLowerCase();const bg=v.length>1?COLORS[v[0]]:'#000',fg=COLORS[v[v.length-1]];if(!fg||!bg)print('Couleur inconnue. Exemples : color a, color 1f, color 0e');else{box.style.background=bg;box.style.color=fg}break}
    case 'ipconfig':print('\nConfiguration IP de Arthur XP\n\nCarte Ethernet Connexion au réseau local :\n   Adresse IP. . . . . . . . . . . : 192.168.1.42\n   Masque de sous-réseau . . . . . : 255.255.255.0\n   Passerelle par défaut . . . . . : 192.168.1.1\n');break;
    case 'ping':{const h=arg||'arthur.xp';print(`\nEnvoi d'une requête 'ping' sur ${h} avec 32 octets de données :`);let i=0;const iv=setInterval(()=>{const ms=8+~~(Math.random()*30);print(`Réponse de ${h} : octets=32 temps=${ms} ms TTL=117`);if(++i===4){clearInterval(iv);print('\n(Simulation — Arthur XP n\'envoie pas de vrais pings.)\n')}},600);break}
-   case 'start':{const map={ie:'ie',internet:'ie',iexplore:'ie',notepad:'notepad',calc:'calc',paint:'paint',mspaint:'paint',mines:'mines',winmine:'mines',pc:'pc',explorer:'pc',cmd:'cmd'};const k=map[arg.toLowerCase()];if(k)open(k);else print('Impossible de trouver « '+arg+' ». Essaie : ie, notepad, calc, paint, mines, pc');break}
+   case 'start':{const map={ie:'ie',internet:'ie',iexplore:'ie',notepad:'notepad',calc:'calc',paint:'paint',mspaint:'paint',mines:'mines',winmine:'mines',pc:'pc',explorer:'pc',cmd:'cmd',code:'code',studio:'code',python:'code',html:'code'};const k=map[arg.toLowerCase()];if(k)open(k);else print('Impossible de trouver « '+arg+' ». Essaie : ie, notepad, calc, paint, mines, pc, code');break}
    case 'iexplore':case 'notepad':case 'calc':case 'mspaint':case 'winmine':case 'explorer':run('start '+cmd);break;
    case 'js':if(!arg)print('Utilisation : js [code]   ex : js 2+2');else runJS(arg);break;
    case 'run':{const code=store.get('note',NOTE_DEF);print('Exécution du Bloc-notes…\n');runJS(code,true);print('');break}
@@ -762,5 +768,3 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.ser
 </script>
 </body>
 </html>
-
-<a href="code.html" style="position:fixed;right:14px;bottom:60px;z-index:50;width:78px;text-align:center;text-decoration:none;color:#fff;font:12px Tahoma,sans-serif;text-shadow:1px 1px 2px #000"><div style="font-size:40px">💻</div><div>Studio de code</div></a>
