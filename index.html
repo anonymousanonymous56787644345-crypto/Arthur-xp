@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arthur XP">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#245edc">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Arthur XP</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%;overflow:hidden;background:#000;font-family:Tahoma,Verdana,Segoe UI,sans-serif;font-size:13px;overscroll-behavior:none}
+textarea,input{-webkit-user-select:text;user-select:text}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+
+/* ---------- BOOT ---------- */
+#boot{background:#000;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:28px}
+.logo{display:flex;align-items:center;gap:12px}
+.orb{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 8%,#ffd25a 18%,#ff8a1f 45%,#c4450b 75%);box-shadow:0 0 30px #ff8a1f88;position:relative}
+.orb:after{content:"";position:absolute;inset:-7px;border-radius:50%;border:3px solid #3d8cff;border-left-color:transparent;border-bottom-color:transparent;transform:rotate(-20deg)}
+.logo-txt{font-family:Verdana,sans-serif;font-size:30px;font-weight:bold;letter-spacing:-1px}
+.logo-txt sup{color:#ff8a1f;font-size:20px;font-style:italic;margin-left:3px}
+.logo-sub{font-size:11px;opacity:.7;letter-spacing:2px;text-align:center;margin-top:-18px}
+.bar{width:160px;height:18px;border:2px solid #b2b2b2;border-radius:4px;padding:2px;overflow:hidden;position:relative}
+.bar i{position:absolute;top:2px;width:9px;height:10px;border-radius:2px;background:linear-gradient(#a8c8ff,#2f62e3 50%,#a8c8ff);animation:slide 1.6s linear infinite}
+.bar i:nth-child(2){animation-delay:.12s}.bar i:nth-child(3){animation-delay:.24s}
+@keyframes slide{from{left:-30px}to{left:170px}}
+.boot-foot{position:absolute;bottom:calc(30px + env(safe-area-inset-bottom));font-size:11px;opacity:.5}
+
+/* ---------- LOGIN ---------- */
+#login{background:#5a7edc;flex-direction:column}
+.lg-top,.lg-bot{height:72px;background:#00309c;flex-shrink:0}
+.lg-top{border-bottom:2px solid #f99736;padding-top:env(safe-area-inset-top)}
+.lg-bot{border-top:2px solid #94b0ec;display:flex;align-items:center;padding:0 20px env(safe-area-inset-bottom);color:#fff;gap:10px}
+.lg-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;background:radial-gradient(ellipse at 20% 20%,#8daaf0 0,#5a7edc 60%)}
+.lg-mid .logo-txt{font-size:26px;color:#fff}
+.lg-hint{color:#fff;font-size:15px}
+.user{display:flex;align-items:center;gap:14px;padding:10px 18px 10px 10px;border-radius:8px;cursor:pointer;background:linear-gradient(90deg,#00309c66,transparent);border:1px solid transparent}
+.user:active{background:linear-gradient(90deg,#00309c,#5a7edc)}
+.avatar{width:54px;height:54px;border-radius:5px;border:3px solid #fff;background:linear-gradient(135deg,#ffcf4d,#ff7a1a);display:grid;place-items:center;font-size:30px}
+.user b{color:#fff;font-size:20px;font-weight:normal}
+.pwr{width:26px;height:26px;border-radius:5px;background:linear-gradient(#ff8a5c,#d43a0c);display:grid;place-items:center;border:1px solid #fff;font-weight:bold}
+
+/* ---------- DESKTOP ---------- */
+#desktop{flex-direction:column}
+#wall{position:absolute;inset:0;transition:filter 1s}
+.w-colline{background:
+ radial-gradient(ellipse 140% 55% at 30% 105%,#3f9a1f 0 55%,transparent 56%),
+ radial-gradient(ellipse 120% 50% at 85% 110%,#55b52a 0 55%,transparent 56%),
+ radial-gradient(ellipse 60% 18% at 25% 25%,#ffffffcc,transparent 70%),
+ radial-gradient(ellipse 40% 12% at 75% 15%,#ffffffaa,transparent 70%),
+ linear-gradient(#1f62d6,#5d9cf2 45%,#a8d1ff 70%)}
+.w-nuit{background:radial-gradient(circle at 75% 20%,#fff8 0 1.5%,transparent 4%),radial-gradient(ellipse 140% 50% at 50% 110%,#0d2a10 0 55%,transparent 56%),linear-gradient(#020824,#16306b 60%,#3a4f9a)}
+.w-coucher{background:radial-gradient(circle at 50% 62%,#fff3b0 0 6%,#ffb347 12%,transparent 30%),radial-gradient(ellipse 140% 45% at 50% 110%,#3b1d3a 0 55%,transparent 56%),linear-gradient(#2b2f77,#d0507a 50%,#ffb347 70%)}
+.w-bleu{background:linear-gradient(135deg,#245edb,#3a80f3 50%,#0b3fb3)}
+.w-archange{background:radial-gradient(circle at 50% 30%,#fff 0 4%,#ffe9a8 12%,transparent 40%),radial-gradient(ellipse 160% 40% at 50% 115%,#fff 0 50%,transparent 52%),linear-gradient(#ffd56b,#f5a64a 40%,#8d6fd8)}
+#icons{position:absolute;top:calc(10px + env(safe-area-inset-top));left:6px;bottom:50px;display:flex;flex-direction:column;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.ico{width:78px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border-radius:3px}
+.ico span:first-child{font-size:34px;line-height:1;filter:drop-shadow(1px 2px 1px #0006)}
+.ico span:last-child{color:#fff;text-align:center;font-size:12px;text-shadow:1px 1px 2px #000,0 0 2px #000;line-height:1.2;padding:1px 2px}
+.ico.sel span:last-child{background:#316ac5}
+.ico.sel span:first-child{filter:drop-shadow(1px 2px 1px #0006) brightness(.7) sepia(1) hue-rotate(190deg) saturate(3)}
+
+/* ---------- TASKBAR ---------- */
+#taskbar{position:absolute;left:0;right:0;bottom:0;height:calc(40px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:linear-gradient(#3c81f3,#245edc 10%,#245edc 85%,#1941a5);border-top:1px solid #0c59b9;z-index:9000}
+#startbtn{height:40px;padding:0 18px 0 10px;display:flex;align-items:center;gap:6px;color:#fff;font-style:italic;font-weight:bold;font-size:17px;text-shadow:1px 1px 2px #0008;background:linear-gradient(#5eac56,#3c9a33 15%,#2f8a26 85%,#1e6a18);border-radius:0 12px 12px 0;box-shadow:inset -2px 0 3px #0005;cursor:pointer;flex-shrink:0}
+#startbtn.on{background:linear-gradient(#2f7a28,#1e6a18 40%,#2f8a26)}
+#startbtn .mini{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 10%,#ffd25a 25%,#ff8a1f 55%,#c4450b)}
+#tasks{flex:1;display:flex;gap:3px;padding:4px;overflow-x:auto;min-width:0}
+.tbtn{flex:0 1 140px;min-width:44px;height:32px;border-radius:3px;display:flex;align-items:center;gap:5px;padding:0 7px;color:#fff;background:linear-gradient(#3c8af7,#2b6fe8);border:1px solid #1941a5;box-shadow:inset 1px 1px #ffffff40;cursor:pointer;white-space:nowrap;overflow:hidden;font-size:12px}
+.tbtn.act{background:linear-gradient(#1e52b7,#1c4ab0);box-shadow:inset 1px 1px 3px #0008}
+.tbtn em{font-style:normal;font-size:15px}.tbtn b{font-weight:normal;overflow:hidden;text-overflow:ellipsis}
+#tray{display:flex;align-items:center;gap:8px;padding:0 12px;color:#fff;background:linear-gradient(#0c8be8,#139ee9 15%,#18a5f0 85%,#0c80d7);border-left:1px solid #092e84;box-shadow:inset 1px 0 #ffffff40;flex-shrink:0;height:40px}
+
+/* ---------- START MENU ---------- */
+#start{position:absolute;left:0;bottom:calc(40px + env(safe-area-inset-bottom));width:min(380px,100vw);border-radius:8px 8px 0 0;overflow:hidden;box-shadow:3px 0 10px #0008;z-index:9500;display:none;border:1px solid #1941a5;border-bottom:0}
+#start.on{display:block}
+.sm-head{height:62px;display:flex;align-items:center;gap:10px;padding:0 10px;background:linear-gradient(#1868ce,#0e60cb 50%,#1868ce);border-bottom:2px solid #f99736;color:#fff;font-weight:bold;font-size:16px;text-shadow:1px 1px 2px #000}
+.sm-head .avatar{width:44px;height:44px;font-size:24px;border-width:2px}
+.sm-body{display:flex;background:#fff}
+.sm-l,.sm-r{padding:6px 0}
+.sm-l{flex:1.1;background:#fff}
+.sm-r{flex:1;background:#d3e5fa;border-left:1px solid #95bdee}
+.sm-i{display:flex;align-items:center;gap:8px;padding:6px 8px;cursor:pointer}
+.sm-i:active,.sm-i:hover{background:#316ac5;color:#fff}
+.sm-i em{font-style:normal;font-size:24px;width:30px;text-align:center}
+.sm-l .sm-i b{display:block}.sm-i small{font-size:11px;opacity:.7}
+.sm-r .sm-i{font-weight:bold;color:#0a246a}.sm-r .sm-i em{font-size:20px}
+.sm-sep{height:1px;margin:4px 8px;background:linear-gradient(90deg,transparent,#aaa,transparent)}
+.sm-foot{height:46px;display:flex;justify-content:flex-end;align-items:center;gap:14px;padding:0 10px;background:linear-gradient(#1868ce,#0e60cb)}
+.sm-foot div{display:flex;align-items:center;gap:5px;color:#fff;cursor:pointer}
+.sq{width:24px;height:24px;border-radius:4px;border:1px solid #fff;display:grid;place-items:center;font-size:13px}
+.sq.y{background:linear-gradient(#ffc75a,#e88a10)}.sq.r{background:linear-gradient(#ff8a5c,#d43a0c)}
+
+/* ---------- WINDOWS ---------- */
+.win{position:absolute;display:flex;flex-direction:column;background:#ece9d8;border:3px solid #0831d9;border-top:0;border-radius:8px 8px 0 0;box-shadow:2px 3px 12px #0007;min-width:200px}
+.win.inactive{border-color:#7a96df}
+.win.inactive .tb{background:linear-gradient(#9db9eb,#7a96df)}
+.win.max{left:0!important;top:0!important;width:100%!important;height:calc(100% - 40px - env(safe-area-inset-bottom))!important;border-radius:0}
+.win.min{display:none}
+.tb{height:32px;flex-shrink:0;display:flex;align-items:center;gap:5px;padding:0 3px 0 6px;color:#fff;font-weight:bold;font-size:13px;text-shadow:1px 1px #0a1f6c;border-radius:7px 7px 0 0;background:linear-gradient(#0997ff,#0053ee 8%,#0050ee 40%,#06f 88%,#06f 93%,#005bff 95%,#003dd7);touch-action:none;cursor:move;margin:0 -3px}
+.win.max .tb{border-radius:0;padding-top:0}
+.tb em{font-style:normal;font-size:15px}
+.tb b{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb{width:26px;height:24px;border-radius:3px;border:1px solid #fff;display:grid;place-items:center;font-size:14px;font-weight:bold;cursor:pointer;background:linear-gradient(135deg,#3c8af7,#1653e3);box-shadow:inset 1px 1px #ffffff60;text-shadow:none}
+.wb.x{background:linear-gradient(135deg,#e5806a,#c33c14)}
+.wb:active{filter:brightness(.8)}
+.menu{display:flex;gap:2px;padding:2px 4px;border-bottom:1px solid #d1cfc0;font-size:12px;flex-shrink:0}
+.menu span{padding:2px 6px}
+.body{flex:1;overflow:auto;position:relative;min-height:0}
+.btn{padding:5px 12px;border:1px solid #003c74;border-radius:3px;background:linear-gradient(#fff,#ece9d8 85%,#d6d0c5);font:inherit;cursor:pointer;color:#000}
+.btn:active{background:linear-gradient(#d6d0c5,#ece9d8)}
+
+/* apps */
+.note{width:100%;height:100%;border:0;resize:none;padding:6px;font:14px "Lucida Console",Courier,monospace;outline:none}
+.calc{padding:8px;display:flex;flex-direction:column;gap:8px}
+.calc-d{background:#fff;border:2px inset #ccc;padding:6px 8px;text-align:right;font-size:26px;font-family:"Lucida Console",monospace;overflow:hidden;white-space:nowrap}
+.calc-g{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.calc-g .btn{height:42px;font-size:17px;padding:0}
+.calc-g .op{color:#c00}.calc-g .eq{grid-row:span 2;height:auto}.calc-g .z{grid-column:span 2}
+.mines{padding:8px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.m-top{display:flex;justify-content:space-between;align-items:center;width:100%;border:2px inset #ccc;padding:4px 6px;background:#c0c0c0}
+.lcd{background:#000;color:#f00;font:bold 22px "Courier New",monospace;padding:0 4px;min-width:50px;text-align:center}
+.smile{width:36px;height:36px;font-size:22px;border:2px outset #fff;background:#c0c0c0;display:grid;place-items:center;cursor:pointer}
+.m-grid{display:grid;grid-template-columns:repeat(9,32px);border:3px inset #ddd;background:#c0c0c0;touch-action:manipulation}
+.c{width:32px;height:32px;border:3px outset #fff;background:#c0c0c0;display:grid;place-items:center;font:bold 17px Verdana;cursor:pointer}
+.c.o{border:1px solid #888;border-width:0 1px 1px 0}
+.c.boom{background:#f00}
+.n1{color:#00f}.n2{color:#080}.n3{color:#f00}.n4{color:#008}.n5{color:#800}.n6{color:#088}.n7{color:#000}.n8{color:#888}
+.flagmode{font-size:12px}
+.paint{display:flex;flex-direction:column;height:100%}
+.p-tools{display:flex;flex-wrap:wrap;gap:4px;padding:5px;border-bottom:1px solid #aaa;align-items:center}
+.sw{width:24px;height:24px;border:2px inset #fff;cursor:pointer}
+.sw.on{outline:2px solid #000;outline-offset:1px}
+.p-can{flex:1;background:#808080;padding:4px;min-height:0}
+.p-can canvas{background:#fff;width:100%;height:100%;touch-action:none;display:block}
+.expl{display:flex;height:100%}
+.ex-side{width:150px;background:linear-gradient(#7ba2e7,#6375d6);padding:8px;flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.ex-box{background:#fff;border-radius:4px 4px 0 0;overflow:hidden}
+.ex-box h4{background:linear-gradient(90deg,#fff,#c6d3f7);color:#215dc6;font-size:12px;padding:5px 8px}
+.ex-box p{padding:6px 8px;font-size:11px;color:#215dc6;line-height:1.7}
+.ex-main{flex:1;background:#fff;padding:10px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
+.ex-it{width:84px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;font-size:12px;cursor:pointer;padding:3px;border-radius:3px}
+.ex-it:active{background:#316ac5;color:#fff}
+.ex-it span:first-child{font-size:34px}
+.addr{display:flex;align-items:center;gap:6px;padding:3px 6px;font-size:12px;border-bottom:1px solid #d1cfc0;flex-shrink:0}
+.addr div{flex:1;background:#fff;border:1px solid #7f9db9;padding:2px 5px}
+.set{padding:12px;display:flex;flex-direction:column;gap:12px}
+.preview{height:120px;border:8px solid #333;border-radius:6px 6px 0 0;position:relative}
+.wl{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.wl div{height:60px;border:2px solid #fff;outline:1px solid #888;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;font-size:11px;color:#fff;text-shadow:1px 1px 2px #000;padding-bottom:2px}
+.wl div.on{outline:3px solid #316ac5}
+.about{padding:14px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;line-height:1.5}
+.dlg{padding:14px;display:flex;gap:12px;align-items:flex-start}
+.dlg-b{display:flex;justify-content:center;gap:8px;padding:0 14px 14px}
+
+/* browser */
+.web{display:flex;flex-direction:column;height:100%}
+.w-tool{display:flex;gap:3px;padding:3px 4px;border-bottom:1px solid #d1cfc0;flex-shrink:0;align-items:center}
+.w-tool button{border:1px solid transparent;background:none;font:inherit;padding:2px 6px;border-radius:3px;cursor:pointer;display:flex;align-items:center;gap:3px;color:#000}
+.w-tool button:active{border-color:#aaa;background:#fff}
+.w-tool button:disabled{opacity:.35}
+.w-tool .g{width:22px;height:22px;border-radius:50%;color:#fff;font-weight:bold;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#9fe08a,#2e9a1e)}
+.w-addr{display:flex;align-items:center;gap:4px;padding:3px 4px;border-bottom:1px solid #d1cfc0;flex-shrink:0;font-size:12px}
+.w-addr form{flex:1;display:flex;gap:4px}
+.w-addr input{flex:1;min-width:0;border:1px solid #7f9db9;padding:3px 5px;font:13px Tahoma,Verdana,sans-serif;outline:none}
+.w-page{flex:1;overflow:auto;background:#fff;min-height:0;-webkit-overflow-scrolling:touch}
+.w-page *{-webkit-user-select:text;user-select:text}
+.w-stat{height:22px;flex-shrink:0;border-top:1px solid #d1cfc0;font-size:11px;display:flex;align-items:center;padding:0 6px;gap:6px;color:#333}
+.w-page a{color:#00c;cursor:pointer;text-decoration:underline}
+.pg{padding:16px;line-height:1.5;font-family:Arial,Verdana,sans-serif}
+.s-home{display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 16px}
+.s-logo{font:bold 40px Georgia,serif;letter-spacing:-1px}
+.s-logo i{font-style:normal}
+.s-box{display:flex;gap:6px;width:100%;max-width:420px}
+.s-box input{flex:1;min-width:0;border:1px solid #999;padding:6px;font-size:15px}
+.s-res{margin:12px 0}
+.s-res .u{color:#080;font-size:12px}
+.perso{background:#000 radial-gradient(#fff 1px,transparent 1px) 0 0/22px 22px;color:#0f0;font-family:"Comic Sans MS","Chalkboard SE",cursive;text-align:center;padding:14px;min-height:100%}
+.perso h1{color:#ff0;font-size:26px;text-shadow:2px 2px #f0f}
+.perso .blink{animation:blink 1s steps(1) infinite;color:#f0f}
+@keyframes blink{50%{opacity:0}}
+.marq{overflow:hidden;white-space:nowrap;background:#00f;color:#fff;padding:3px 0;margin:10px 0}
+.marq span{display:inline-block;padding-left:100%;animation:marq 12s linear infinite}
+@keyframes marq{to{transform:translateX(-100%)}}
+.cnt{display:inline-block;background:#222;border:2px ridge #888;color:#f00;font:bold 18px "Courier New";padding:2px 8px;letter-spacing:3px}
+.gb{background:#002;border:2px dashed #0ff;margin:10px auto;max-width:420px;padding:8px;text-align:left;color:#0ff}
+.gb input,.gb textarea{width:100%;margin:3px 0;font:13px Verdana;padding:4px}
+.gb .e{border-top:1px dotted #0ff;padding:5px 0;color:#fff;font-size:13px}
+.err{padding:20px;font-family:Tahoma,Verdana;line-height:1.6}
+.err h2{color:#000;font-size:18px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.err hr{border:0;border-top:1px solid #999;margin:10px 0}
+.gamecard{display:flex;gap:10px;align-items:center;border:1px solid #ccc;border-radius:6px;padding:10px;margin:8px 0;background:#f7f9ff}
+.gamecard span{font-size:36px}
+.runner canvas{width:100%;max-width:520px;height:170px;border:1px solid #ccc;display:block;margin:8px auto;touch-action:manipulation;background:#fff}
+
+/* cmd */
+.cmd{background:#000;color:#c0c0c0;font:13px/1.35 "Lucida Console","Courier New",monospace;height:100%;overflow:auto;padding:6px;white-space:pre-wrap;word-break:break-all}
+.cmd *{-webkit-user-select:text;user-select:text}
+.cmd .ln{display:flex}
+.cmd input{flex:1;min-width:0;background:none;border:0;outline:none;color:inherit;font:inherit;padding:0;caret-color:currentColor}
+
+/* ---------- SHUTDOWN ---------- */
+#shut{position:fixed;inset:0;z-index:9900;display:none;align-items:center;justify-content:center;background:#0005}
+#shut.on{display:flex}
+.sh-box{width:min(320px,92vw);border-radius:6px;overflow:hidden;box-shadow:0 5px 25px #000}
+.sh-h{background:#00309c;color:#fff;padding:12px 14px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.sh-m{background:linear-gradient(#7ea2f1,#5a7edc);display:flex;justify-content:space-around;padding:22px 6px;border-top:2px solid #94b0ec;border-bottom:2px solid #94b0ec}
+.sh-m div{display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;cursor:pointer;font-size:12px}
+.sh-m .sq{width:38px;height:38px;font-size:20px;border-radius:6px}
+.sq.g{background:linear-gradient(#a3e07a,#3c9a33)}
+.sh-f{background:#00309c;padding:10px 14px;text-align:right}
+#off{background:#000;color:#fff;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot" class="screen">
+  <div class="logo"><div class="orb"></div><div class="logo-txt">Arthur<sup>xp</sup></div></div>
+  <div class="logo-sub">ÉDITION FAMILIALE</div>
+  <div class="bar"><i></i><i></i><i></i></div>
+  <div class="boot-foot">Copyright © Arthur Corp. Fait avec Claude.</div>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="screen">
+  <div class="lg-top"></div>
+  <div class="lg-mid">
+    <div class="logo"><div class="orb" style="width:44px;height:44px"></div><div class="logo-txt">Arthur<sup>xp</sup></div></div>
+    <div class="lg-hint">Pour commencer, touchez votre nom d'utilisateur</div>
+    <div class="user" id="userBtn"><div class="avatar">🦊</div><b>Arthur</b></div>
+  </div>
+  <div class="lg-bot"><div class="pwr" id="lgOff">⏻</div><span>Éteindre l'ordinateur</span></div>
+</div>
+
+<!-- DESKTOP -->
+<div id="desktop" class="screen">
+  <div id="wall"></div>
+  <div id="icons"></div>
+  <div id="start">
+    <div class="sm-head"><div class="avatar">🦊</div>Arthur</div>
+    <div class="sm-body">
+      <div class="sm-l" id="smL"></div>
+      <div class="sm-r" id="smR"></div>
+    </div>
+    <div class="sm-foot">
+      <div id="smLogout"><span class="sq y">🔑</span>Fermer la session</div>
+      <div id="smOff"><span class="sq r">⏻</span>Arrêter</div>
+    </div>
+  </div>
+  <div id="taskbar">
+    <div id="startbtn"><span class="mini"></span>démarrer</div>
+    <div id="tasks"></div>
+    <div id="tray"><span>🔊</span><span id="clock">00:00</span></div>
+  </div>
+</div>
+
+<!-- SHUTDOWN DIALOG -->
+<div id="shut">
+  <div class="sh-box">
+    <div class="sh-h"><span>Éteindre l'ordinateur</span><span class="orb" style="width:22px;height:22px"></span></div>
+    <div class="sh-m">
+      <div id="shSleep"><span class="sq y">☾</span>Mise en veille</div>
+      <div id="shOff"><span class="sq r">⏻</span>Arrêter</div>
+      <div id="shRe"><span class="sq g">↻</span>Redémarrer</div>
+    </div>
+    <div class="sh-f"><button class="btn" id="shCancel">Annuler</button></div>
+  </div>
+</div>
+
+<div id="off" class="screen"><div id="offTxt" style="font-size:16px"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem('axp_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('axp_'+k,JSON.stringify(v))}catch(e){}}};
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id))}
+
+/* ---------- SOUND ---------- */
+let AC;
+function chime(notes,dur=.35){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t0=AC.currentTime;
+ notes.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(AC.destination);
+ const t=t0+i*.16;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+dur+.6);o.start(t);o.stop(t+dur+.7)})}catch(e){}}
+const sndStart=()=>chime([392,523.25,659.25,783.99,1046.5],.5);
+const sndBye=()=>chime([783.99,659.25,523.25,392],.4);
+const sndErr=()=>chime([220,196],.2);
+
+/* ---------- BOOT FLOW ---------- */
+function boot(){show('boot');setTimeout(()=>show('login'),2800)}
+$('#userBtn').onclick=()=>{sndStart();show('desktop');applyWall()};
+$('#lgOff').onclick=()=>powerOff();
+
+/* ---------- WALLPAPERS ---------- */
+const WALLS=[['colline','Colline'],['nuit','Nuit'],['coucher','Coucher'],['bleu','Bleu XP'],['archange','Paradis']];
+function applyWall(){$('#wall').className='w-'+store.get('wall','colline')}
+
+/* ---------- APPS ---------- */
+const APPS={
+ pc:{t:'Poste de travail',i:'🖥️',w:520,h:380,make:mkPC},
+ ie:{t:'Internet',i:'🌐',w:600,h:480,make:mkWeb},
+ cmd:{t:'Invite de commandes',i:'⬛',w:560,h:380,make:mkCmd},
+ docs:{t:'Mes documents',i:'📁',w:500,h:360,make:mkDocs},
+ notepad:{t:'Bloc-notes',i:'📝',w:440,h:340,make:mkNote},
+ calc:{t:'Calculatrice',i:'🧮',w:270,h:360,make:mkCalc,fixed:1},
+ mines:{t:'Démineur',i:'💣',w:318,h:440,make:mkMines,fixed:1},
+ paint:{t:'Paint',i:'🎨',w:520,h:440,make:mkPaint},
+ bin:{t:'Corbeille',i:'🗑️',w:420,h:300,make:mkBin},
+ settings:{t:"Propriétés d'affichage",i:'🖼️',w:380,h:420,make:mkSettings},
+ about:{t:'À propos de Arthur XP',i:'ℹ️',w:340,h:300,make:mkAbout,fixed:1}
+};
+const DESK=['pc','ie','docs','cmd','notepad','calc','mines','paint','bin'];
+const icons=$('#icons');
+DESK.forEach(k=>{const a=APPS[k],d=document.createElement('div');d.className='ico';d.innerHTML=`<span>${a.i}</span><span>${a.t}</span>`;
+ d.onclick=e=>{e.stopPropagation();document.querySelectorAll('.ico').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');open(k)};icons.appendChild(d)});
+$('#wall').onclick=()=>{document.querySelectorAll('.ico').forEach(x=>x.classList.remove('sel'));closeStart()};
+
+/* start menu */
+const SML=[['ie','Internet','Naviguer sur le Web'],['notepad','Bloc-notes','Écrire du texte'],['cmd','Invite de commandes','Coder en JavaScript'],['paint','Paint','Dessiner'],['calc','Calculatrice',''],['mines','Démineur','Jeu']];
+const SMR=[['docs','Mes documents'],['pc','Poste de travail'],['settings','Panneau de configuration'],['about','Aide et support']];
+SML.forEach(([k,t,s],i)=>{const d=document.createElement('div');d.className='sm-i';d.innerHTML=`<em>${APPS[k].i}</em><div><b>${t}</b>${s?`<small>${s}</small>`:''}</div>`;d.onclick=()=>{closeStart();open(k)};$('#smL').appendChild(d);if(i===2){const s=document.createElement('div');s.className='sm-sep';$('#smL').appendChild(s)}});
+SMR.forEach(([k,t])=>{const d=document.createElement('div');d.className='sm-i';d.innerHTML=`<em>${APPS[k].i}</em>${t}`;d.onclick=()=>{closeStart();open(k)};$('#smR').appendChild(d)});
+$('#startbtn').onclick=e=>{e.stopPropagation();const on=$('#start').classList.toggle('on');$('#startbtn').classList.toggle('on',on)};
+function closeStart(){$('#start').classList.remove('on');$('#startbtn').classList.remove('on')}
+$('#smLogout').onclick=()=>{closeStart();sndBye();closeAll();setTimeout(()=>show('login'),300)};
+$('#smOff').onclick=()=>{closeStart();$('#wall').style.filter='grayscale(1)';$('#shut').classList.add('on')};
+$('#shCancel').onclick=()=>{$('#shut').classList.remove('on');$('#wall').style.filter=''};
+$('#shOff').onclick=()=>{$('#shut').classList.remove('on');$('#wall').style.filter='';powerOff()};
+$('#shRe').onclick=()=>{$('#shut').classList.remove('on');$('#wall').style.filter='';closeAll();sndBye();show('off');$('#offTxt').textContent='Redémarrage…';setTimeout(boot,1800)};
+$('#shSleep').onclick=()=>{$('#shut').classList.remove('on');$('#wall').style.filter='';show('off');$('#offTxt').textContent='💤 En veille — touchez l\'écran';$('#off').onclick=()=>{$('#off').onclick=null;show('desktop')}};
+function powerOff(){closeAll();sndBye();show('off');$('#offTxt').textContent='Arthur XP s\'arrête…';
+ setTimeout(()=>{$('#offTxt').innerHTML='Vous pouvez maintenant éteindre votre ordinateur en toute sécurité.<br><br><span style="opacity:.6;font-size:13px">Touchez l\'écran pour rallumer</span>';$('#off').onclick=()=>{$('#off').onclick=null;boot()}},1800)}
+
+/* clock */
+function tick(){const d=new Date();$('#clock').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+tick();setInterval(tick,10000);
+
+/* ---------- WINDOW MANAGER ---------- */
+let Z=10,wins={},cascade=0;
+const small=()=>innerWidth<600;
+function open(k){
+ if(wins[k]){const w=wins[k];w.el.classList.remove('min');focus(k);return}
+ const a=APPS[k],el=document.createElement('div');el.className='win';
+ const H=innerHeight-40,W=innerWidth;
+ let w=Math.min(a.w,W-8),h=Math.min(a.h,H-20);
+ el.style.width=w+'px';el.style.height=h+'px';
+ el.style.left=Math.max(4,Math.min((W-w)/2+cascade,W-w-4))+'px';
+ el.style.top=Math.max(4,Math.min((H-h)/2-20+cascade,H-h-4))+'px';
+ cascade=(cascade+24)%96;
+ el.innerHTML=`<div class="tb"><em>${a.i}</em><b>${a.t}</b><div class="wb" data-a="min">_</div>${a.fixed?'':'<div class="wb" data-a="max">□</div>'}<div class="wb x" data-a="close">✕</div></div><div class="body"></div>`;
+ $('#desktop').appendChild(el);
+ const tb=el.querySelector('.tb');
+ tb.querySelectorAll('.wb').forEach(b=>b.onpointerdown=e=>e.stopPropagation());
+ tb.querySelectorAll('.wb').forEach(b=>b.onclick=e=>{e.stopPropagation();const act=b.dataset.a;
+  if(act==='close')close(k);else if(act==='min'){el.classList.add('min');refreshTasks()}else{el.classList.toggle('max');wins[k].onresize&&wins[k].onresize()}});
+ tb.ondblclick=()=>{if(!a.fixed){el.classList.toggle('max');wins[k].onresize&&wins[k].onresize()}};
+ drag(tb,el);
+ el.addEventListener('pointerdown',()=>focus(k),true);
+ const tbtn=document.createElement('div');tbtn.className='tbtn';tbtn.innerHTML=`<em>${a.i}</em><b>${a.t}</b>`;
+ tbtn.onclick=()=>{const w=wins[k];if(w.el.classList.contains('min')){w.el.classList.remove('min');focus(k)}else if(w.el.style.zIndex==Z){w.el.classList.add('min');refreshTasks()}else focus(k)};
+ $('#tasks').appendChild(tbtn);
+ wins[k]={el,tbtn};
+ if(small()&&!a.fixed)el.classList.add('max');
+ a.make(el.querySelector('.body'),wins[k],el);
+ focus(k);
+}
+function focus(k){const w=wins[k];if(!w)return;w.el.style.zIndex=++Z;refreshTasks()}
+function refreshTasks(){let top=null,tz=-1;for(const k in wins){const w=wins[k];if(!w.el.classList.contains('min')&&+w.el.style.zIndex>tz){tz=+w.el.style.zIndex;top=k}}
+ for(const k in wins){wins[k].el.classList.toggle('inactive',k!==top);wins[k].tbtn.classList.toggle('act',k===top)}}
+function close(k){const w=wins[k];if(!w)return;w.onclose&&w.onclose();w.el.remove();w.tbtn.remove();delete wins[k];refreshTasks()}
+function closeAll(){Object.keys(wins).forEach(close)}
+function drag(h,el){let sx,sy,ox,oy,on=false;
+ h.addEventListener('pointerdown',e=>{if(el.classList.contains('max'))return;on=true;sx=e.clientX;sy=e.clientY;ox=el.offsetLeft;oy=el.offsetTop;h.setPointerCapture(e.pointerId)});
+ h.addEventListener('pointermove',e=>{if(!on)return;let x=ox+e.clientX-sx,y=oy+e.clientY-sy;
+  x=Math.max(-el.offsetWidth+60,Math.min(innerWidth-60,x));y=Math.max(0,Math.min(innerHeight-80,y));el.style.left=x+'px';el.style.top=y+'px'});
+ h.addEventListener('pointerup',()=>on=false);h.addEventListener('pointercancel',()=>on=false)}
+
+/* generic dialog */
+function msg(title,icon,text){const k='msg'+Date.now();APPS[k]={t:title,i:icon,w:300,h:170,fixed:1,make:(b)=>{b.innerHTML=`<div class="dlg"><span style="font-size:32px">${icon}</span><div style="line-height:1.5">${text}</div></div><div class="dlg-b"><button class="btn">OK</button></div>`;b.querySelector('button').onclick=()=>{close(k);delete APPS[k]}}};open(k)}
+
+/* ---------- APP: NOTEPAD ---------- */
+const NOTE_DEF='// Bienvenue dans Arthur XP !\n// Écris ton code ici, puis tape run dans l\'Invite de commandes.\n\nlet nom = "Arthur";\nfor (let i = 1; i <= 3; i++) {\n  print("Bonjour " + nom + " ! (" + i + ")");\n}\n';
+function mkNote(b,w,el){el.insertBefore(Object.assign(document.createElement('div'),{className:'menu',innerHTML:'<span>Fichier</span><span>Edition</span><span>Format</span><span>Affichage</span><span>?</span>'}),b);
+ const t=document.createElement('textarea');t.className='note';t.spellcheck=false;t.value=store.get('note',NOTE_DEF);
+ t.oninput=()=>store.set('note',t.value);b.appendChild(t)}
+
+/* ---------- APP: CALC ---------- */
+function mkCalc(b){b.innerHTML=`<div class="calc"><div class="calc-d">0</div><div class="calc-g"></div></div>`;
+ const d=b.querySelector('.calc-d'),g=b.querySelector('.calc-g');let cur='0',acc=null,op=null,fresh=false;
+ const keys=['C','←','÷','×','7','8','9','−','4','5','6','+','1','2','3','=','0','.'];
+ const show=()=>d.textContent=cur.length>14?(+cur).toPrecision(9):cur;
+ const calc=(a,b,o)=>o==='+'?a+b:o==='−'?a-b:o==='×'?a*b:b===0?NaN:a/b;
+ keys.forEach(k=>{const x=document.createElement('button');x.className='btn'+('÷×−+'.includes(k)?' op':'')+(k==='='?' eq op':'')+(k==='0'?' z':'');x.textContent=k;
+  x.onclick=()=>{if(/\d/.test(k)){cur=(cur==='0'||fresh)?k:cur+k;fresh=false}
+   else if(k==='.'){if(fresh){cur='0';fresh=false}if(!cur.includes('.'))cur+='.'}
+   else if(k==='C'){cur='0';acc=null;op=null}
+   else if(k==='←'){cur=cur.length>1?cur.slice(0,-1):'0'}
+   else if(k==='='){if(op!==null){cur=String(+calc(acc,+cur,op).toFixed(10));if(cur==='NaN')cur='Erreur';acc=null;op=null;fresh=true}}
+   else{if(op!==null&&!fresh)cur=String(+calc(acc,+cur,op).toFixed(10));acc=+cur;op=k;fresh=true}
+   show()};g.appendChild(x)})}
+
+/* ---------- APP: MINESWEEPER ---------- */
+function mkMines(b,w){const N=9,M=10;b.innerHTML=`<div class="mines"><div class="m-top"><div class="lcd" id="mc">010</div><div class="smile">🙂</div><div class="lcd" id="mt">000</div></div><div class="m-grid"></div><button class="btn flagmode">Mode : ⛏️ Creuser</button><div style="font-size:11px;color:#555;text-align:center">Appui long = poser un drapeau 🚩</div></div>`;
+ const grid=b.querySelector('.m-grid'),sm=b.querySelector('.smile'),mc=b.querySelector('#mc'),mt=b.querySelector('#mt'),fm=b.querySelector('.flagmode');
+ let cells,started,over,flags,timer,secs,opened,flagMode=false;
+ fm.onclick=()=>{flagMode=!flagMode;fm.textContent='Mode : '+(flagMode?'🚩 Drapeau':'⛏️ Creuser')};
+ const pad=n=>String(Math.max(0,n)).padStart(3,'0');
+ function reset(){clearInterval(timer);cells=[];started=over=false;flags=0;secs=0;opened=0;sm.textContent='🙂';mc.textContent=pad(M);mt.textContent='000';grid.innerHTML='';
+  for(let i=0;i<N*N;i++){const el=document.createElement('div');el.className='c';const c={i,mine:false,n:0,o:false,f:false,el};cells.push(c);
+   let lp,moved=false;el.onpointerdown=()=>{moved=false;lp=setTimeout(()=>{lp=null;flag(c)},420)};
+   el.onpointerup=()=>{if(lp){clearTimeout(lp);lp=null;flagMode?flag(c):reveal(c)}};el.onpointerleave=()=>{if(lp){clearTimeout(lp);lp=null}};
+   el.oncontextmenu=e=>e.preventDefault();grid.appendChild(el)}}
+ const nb=c=>{const r=~~(c.i/N),q=c.i%N,o=[];for(let dr=-1;dr<2;dr++)for(let dq=-1;dq<2;dq++){if(!dr&&!dq)continue;const R=r+dr,Q=q+dq;if(R>=0&&R<N&&Q>=0&&Q<N)o.push(cells[R*N+Q])}return o};
+ function place(safe){const ban=new Set([safe.i,...nb(safe).map(c=>c.i)]);let k=0;while(k<M){const c=cells[~~(Math.random()*N*N)];if(!c.mine&&!ban.has(c.i)){c.mine=true;k++}}
+  cells.forEach(c=>c.n=nb(c).filter(x=>x.mine).length)}
+ function flag(c){if(over||c.o)return;c.f=!c.f;flags+=c.f?1:-1;c.el.textContent=c.f?'🚩':'';mc.textContent=pad(M-flags);try{navigator.vibrate&&navigator.vibrate(20)}catch(e){}}
+ function reveal(c){if(over||c.f||c.o)return;
+  if(!started){started=true;place(c);timer=setInterval(()=>{secs++;mt.textContent=pad(Math.min(999,secs))},1000)}
+  if(c.mine){over=true;clearInterval(timer);sm.textContent='😵';c.el.classList.add('boom');cells.forEach(x=>{if(x.mine){x.el.textContent='💣';x.el.classList.add('o')}});sndErr();return}
+  const st=[c];while(st.length){const x=st.pop();if(x.o||x.f)continue;x.o=true;opened++;x.el.classList.add('o');if(x.n){x.el.textContent=x.n;x.el.classList.add('n'+x.n)}else nb(x).forEach(y=>!y.o&&st.push(y))}
+  if(opened===N*N-M){over=true;clearInterval(timer);sm.textContent='😎';cells.forEach(x=>{if(x.mine)x.el.textContent='🚩'});sndStart();
+   const best=store.get('mineBest',null);if(best===null||secs<best){store.set('mineBest',secs);setTimeout(()=>msg('Démineur','🏆',`Bravo Arthur ! Nouveau record : <b>${secs} s</b>`),400)}}}
+ sm.onclick=reset;reset();w.onclose=()=>clearInterval(timer)}
+
+/* ---------- APP: PAINT ---------- */
+function mkPaint(b,w){b.innerHTML=`<div class="paint"><div class="p-tools"></div><div class="p-can"><canvas></canvas></div></div>`;
+ const tools=b.querySelector('.p-tools'),cv=b.querySelector('canvas'),ctx=cv.getContext('2d');
+ const COLS=['#000','#808080','#fff','#c00','#f80','#ff0','#0a0','#0cf','#00f','#80f','#f0f','#8b4513'];
+ let color='#000',size=4;
+ COLS.forEach((c,i)=>{const s=document.createElement('div');s.className='sw'+(i?'':' on');s.style.background=c;s.onclick=()=>{color=c;tools.querySelectorAll('.sw').forEach(x=>x.classList.remove('on'));s.classList.add('on')};tools.appendChild(s)});
+ [[2,'•'],[6,'●'],[14,'⬤']].forEach(([n,l])=>{const x=document.createElement('button');x.className='btn';x.style.padding='3px 8px';x.textContent=l;x.onclick=()=>size=n;tools.appendChild(x)});
+ const er=document.createElement('button');er.className='btn';er.style.padding='3px 8px';er.textContent='🧽';er.onclick=()=>{color='#fff';tools.querySelectorAll('.sw').forEach(x=>x.classList.remove('on'))};tools.appendChild(er);
+ const cl=document.createElement('button');cl.className='btn';cl.style.padding='3px 8px';cl.textContent='Effacer';cl.onclick=()=>{ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);save()};tools.appendChild(cl);
+ function save(){try{store.set('paint',cv.toDataURL('image/png'))}catch(e){}}
+ function fit(){const r=cv.getBoundingClientRect(),dpr=devicePixelRatio||1;if(!r.width)return;const img=cv.dataset.init?cv.toDataURL():store.get('paint',null);cv.dataset.init=1;
+  cv.width=r.width*dpr;cv.height=r.height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,r.width,r.height);
+  if(img){const im=new Image();im.onload=()=>ctx.drawImage(im,0,0,im.width/dpr,im.height/dpr);im.src=img}}
+ let on=false,lx,ly;
+ cv.onpointerdown=e=>{on=true;const r=cv.getBoundingClientRect();lx=e.clientX-r.left;ly=e.clientY-r.top;cv.setPointerCapture(e.pointerId);dot(lx,ly)};
+ cv.onpointermove=e=>{if(!on)return;const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;ctx.strokeStyle=color;ctx.lineWidth=size;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(x,y);ctx.stroke();lx=x;ly=y};
+ cv.onpointerup=cv.onpointercancel=()=>{if(on){on=false;save()}};
+ function dot(x,y){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,size/2,0,7);ctx.fill()}
+ w.onresize=()=>setTimeout(fit,30);setTimeout(fit,30)}
+
+/* ---------- APP: EXPLORER ---------- */
+function explorer(b,el,side,path,items){el.insertBefore(Object.assign(document.createElement('div'),{className:'menu',innerHTML:'<span>Fichier</span><span>Edition</span><span>Affichage</span><span>Favoris</span><span>Outils</span>'}),b);
+ el.insertBefore(Object.assign(document.createElement('div'),{className:'addr',innerHTML:`Adresse <div>${path}</div>`}),b);
+ b.innerHTML=`<div class="expl">${small()?'':`<div class="ex-side">${side}</div>`}<div class="ex-main"></div></div>`;
+ const m=b.querySelector('.ex-main');
+ const render=(list,addr)=>{m.innerHTML='';el.querySelector('.addr div').textContent=addr;list.forEach(([i,t,fn])=>{const d=document.createElement('div');d.className='ex-it';d.innerHTML=`<span>${i}</span><span>${t}</span>`;d.onclick=fn;m.appendChild(d)})};
+ render(items(render),path)}
+function mkPC(b,w,el){explorer(b,el,`<div class="ex-box"><h4>Gestion du système</h4><p>🖼️ Afficher les infos<br>⚙️ Modifier un paramètre</p></div><div class="ex-box"><h4>Détails</h4><p><b>Poste de travail</b><br>Dossier système</p></div>`,'Poste de travail',render=>{
+ const C=()=>render([['📁','Documents and Settings',()=>open('docs')],['📁','Program Files',()=>msg('Program Files','🔒','Accès refusé. Ces fichiers sont protégés par Arthur XP 😉')],['📁','ARTHURXP',()=>msg('ARTHURXP','⚠️','Ces fichiers sont cachés.<br>Modifier leur contenu pourrait endommager le système.')],['⬅️','Retour',()=>render(root(),'Poste de travail')]],'C:\\');
+ const D=()=>render([['🎮','Archange.exe',()=>msg('Archange','👼','Ton jeu Archange — Le Salut des Âmes est installé ici… dans une prochaine version !')],['🎅','SantaFilou3D.exe',()=>msg('Santa Filou 3D','🎅','Ho ho ho ! Lien vers ton jeu à ajouter dans une prochaine version.')],['🍎','LutinPomme.exe',()=>msg('Lutin & La Pomme','🍎','Ton premier jeu rétro, bientôt jouable ici !')],['⬅️','Retour',()=>render(root(),'Poste de travail')]],'D:\\ Jeux');
+ const root=()=>[['💽','Disque local (C:)',C],['💿','Jeux d\'Arthur (D:)',D],['📁','Mes documents',()=>open('docs')],['🖼️','Panneau de configuration',()=>open('settings')]];
+ return root()})}
+function mkDocs(b,w,el){explorer(b,el,`<div class="ex-box"><h4>Gestion des fichiers</h4><p>📄 Créer un dossier<br>🌐 Publier sur le Web</p></div>`,'C:\\Mes documents',render=>[
+ ['📝','Notes.txt',()=>open('notepad')],['🖼️','Mon dessin.bmp',()=>open('paint')],['📁','Ma musique',()=>msg('Ma musique','🎵','Ce dossier est vide.')],['📁','Mes images',()=>msg('Mes images','🖼️','Ce dossier est vide.')],
+ ['📄','BTS SAM.doc',()=>msg('BTS SAM.doc','📄','Courage pour l\'alternance ! 💪')]])}
+function mkBin(b){b.innerHTML=`<div style="background:#fff;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#666"><span style="font-size:48px">🗑️</span>La Corbeille est vide.</div>`}
+
+/* ---------- APP: SETTINGS ---------- */
+function mkSettings(b){const cur=store.get('wall','colline');
+ b.innerHTML=`<div class="set"><div class="preview w-${cur}"></div><b>Arrière-plan :</b><div class="wl"></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" data-a="ok">OK</button></div></div>`;
+ const pv=b.querySelector('.preview'),wl=b.querySelector('.wl');let sel=cur;
+ WALLS.forEach(([k,t])=>{const d=document.createElement('div');d.className='w-'+k+(k===cur?' on':'');d.textContent=t;d.onclick=()=>{sel=k;pv.className='preview w-'+k;wl.querySelectorAll('div').forEach(x=>x.classList.remove('on'));d.classList.add('on');store.set('wall',k);applyWall()};wl.appendChild(d)});
+ b.querySelector('[data-a=ok]').onclick=()=>close('settings')}
+function mkAbout(b){b.innerHTML=`<div class="about"><div class="logo"><div class="orb" style="width:40px;height:40px"></div><div class="logo-txt" style="font-size:24px;color:#003">Arthur<sup>xp</sup></div></div>
+ <div>Version 1.0 — Édition familiale<br>Construit par Arthur avec Claude</div><div style="font-size:11px;color:#555">Astuce : dans Safari, touche Partager → « Sur l'écran d'accueil » pour l'avoir en plein écran comme une vraie app.</div><button class="btn">OK</button></div>`;b.querySelector('button').onclick=()=>close('about')}
+
+/* ---------- APP: INTERNET ---------- */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const INDEX=[
+ ['arthur.xp','Arthur Recherche','Le moteur de recherche d\'Arthur XP.','recherche accueil moteur'],
+ ['jeux.arthur.xp','Les jeux d\'Arthur','Archange, Santa Filou 3D, Lutin & La Pomme et Dino Course.','jeux jeu game archange santa filou lutin pomme dino'],
+ ['dino.arthur.xp','Dino Course','Saute par-dessus les cactus ! Jeu jouable dans le navigateur.','dino course jeu saut cactus runner'],
+ ['perso.arthur.xp','La page perso d\'Arthur','Site perso style 2003 avec livre d\'or et compteur de visites.','perso arthur page livre or compteur'],
+ ['code.arthur.xp','Apprendre à coder','Petit cours pour coder dans l\'invite de commandes.','code coder javascript programmer cmd cours'],
+ ['favoris','Favoris','Tes sites préférés.','favoris']];
+function mkWeb(b,w){
+ b.innerHTML=`<div class="web"><div class="w-tool"><button data-a="back"><span class="g">◀</span><small>Précédente</small></button><button data-a="fwd"><span class="g">▶</span></button><button data-a="reload">🔄</button><button data-a="home">🏠</button><button data-a="fav">⭐</button></div>
+ <div class="w-addr">Adresse<form><input autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn" style="padding:2px 8px">OK</button></form></div>
+ <div class="w-page"></div><div class="w-stat"><span>🌐</span><span class="st">Terminé</span><span style="margin-left:auto">Internet</span></div></div>`;
+ const page=b.querySelector('.w-page'),inp=b.querySelector('input'),st=b.querySelector('.st'),bk=b.querySelector('[data-a=back]'),fw=b.querySelector('[data-a=fwd]');
+ let hist=[],pos=-1,stop=null;
+ b.querySelector('[data-a=home]').onclick=()=>go('arthur.xp');
+ b.querySelector('[data-a=fav]').onclick=()=>go('favoris');
+ b.querySelector('[data-a=reload]').onclick=()=>go(hist[pos],false);
+ bk.onclick=()=>{if(pos>0){pos--;go(hist[pos],false)}};
+ fw.onclick=()=>{if(pos<hist.length-1){pos++;go(hist[pos],false)}};
+ b.querySelector('form').onsubmit=e=>{e.preventDefault();inp.blur();go(inp.value)};
+ page.addEventListener('click',e=>{const a=e.target.closest('[data-go]');if(a){e.preventDefault();go(a.dataset.go)}});
+ w.onclose=()=>stop&&stop();
+ function go(raw,push=true){
+  if(stop){stop();stop=null}
+  let a=String(raw||'').trim();if(!a)return;
+  let url=a.replace(/^https?:\/\//i,'').replace(/^www\./i,'').replace(/\/+$/,'');
+  const isUrl=/^[^\s]+\.[a-z]{2,}(\/.*)?$/i.test(url)||url==='favoris'||url.startsWith('recherche?');
+  if(!isUrl)url='recherche?q='+encodeURIComponent(a);
+  if(push){hist=hist.slice(0,pos+1);hist.push(url);pos=hist.length-1}
+  bk.disabled=pos<=0;fw.disabled=pos>=hist.length-1;
+  inp.value='http://'+url;st.textContent='Ouverture de la page…';page.innerHTML='';
+  setTimeout(()=>{render(url);page.scrollTop=0;st.textContent='Terminé'},250)}
+ function render(url){const low=url.toLowerCase();
+  if(low==='arthur.xp')return home();
+  if(low.startsWith('recherche?q='))return search(decodeURIComponent(url.slice(12)));
+  if(low==='favoris')return favs();
+  if(low==='jeux.arthur.xp')return jeux();
+  if(low==='perso.arthur.xp')return perso();
+  if(low==='dino.arthur.xp')return dino();
+  if(low==='code.arthur.xp')return code();
+  external(url)}
+ function home(){page.innerHTML=`<div class="s-home"><div class="s-logo"><i style="color:#245edc">A</i><i style="color:#e33">r</i><i style="color:#f90">t</i><i style="color:#245edc">h</i><i style="color:#2a2">u</i><i style="color:#e33">r</i></div><div style="color:#666;margin-top:-10px">Recherche</div>
+  <form class="s-box"><input placeholder="Cherche un site ou tape une adresse…"><button class="btn">Rechercher</button></form>
+  <div style="font-size:13px;text-align:center;line-height:2">Sites populaires : <a data-go="jeux.arthur.xp">Jeux</a> · <a data-go="dino.arthur.xp">Dino Course</a> · <a data-go="perso.arthur.xp">Page perso</a> · <a data-go="code.arthur.xp">Apprendre à coder</a></div>
+  <div style="font-size:11px;color:#888;text-align:center;max-width:380px">Les sites en .arthur.xp vivent dans ton ordinateur. Pour le vrai Web, tape une adresse (ex : wikipedia.org) : elle s'ouvrira dans Safari.</div></div>`;
+  const f=page.querySelector('form');f.onsubmit=e=>{e.preventDefault();go(f.querySelector('input').value)}}
+ function search(q){const words=q.toLowerCase().split(/\s+/).filter(Boolean);
+  const res=INDEX.filter(([u,t,d,k])=>words.some(x=>(u+' '+t+' '+d+' '+k).toLowerCase().includes(x)));
+  page.innerHTML=`<div class="pg"><form class="s-box" style="max-width:none"><input value="${esc(q)}"><button class="btn">Rechercher</button></form>
+  <p style="color:#666;font-size:12px;margin-top:8px">${res.length} résultat(s) dans Arthur XP pour « ${esc(q)} »</p>
+  ${res.map(([u,t,d])=>`<div class="s-res"><a data-go="${u}" style="font-size:16px">${esc(t)}</a><div class="u">http://${u}</div><div style="font-size:13px">${esc(d)}</div></div>`).join('')}
+  <div class="s-res" style="border-top:1px solid #ddd;padding-top:12px">🌍 <a href="https://www.google.com/search?q=${encodeURIComponent(q)}" target="_blank" rel="noopener">Chercher « ${esc(q)} » sur le vrai Web ↗</a><div style="font-size:12px;color:#666">S'ouvre dans Safari</div></div></div>`;
+  const f=page.querySelector('form');f.onsubmit=e=>{e.preventDefault();go(f.querySelector('input').value)}}
+ function favs(){page.innerHTML=`<div class="pg"><h2>⭐ Favoris</h2>${INDEX.filter(x=>x[0]!=='favoris').map(([u,t])=>`<p>📄 <a data-go="${u}">${esc(t)}</a></p>`).join('')}
+  <h3 style="margin-top:14px">Vrai Web (s'ouvre dans Safari)</h3><p>🌍 <a href="https://fr.wikipedia.org" target="_blank" rel="noopener">Wikipédia</a></p><p>🌍 <a href="https://www.youtube.com" target="_blank" rel="noopener">YouTube</a></p><p>🌍 <a href="https://tryhackme.com" target="_blank" rel="noopener">TryHackMe</a></p></div>`}
+ function external(url){const real='https://'+url;page.innerHTML=`<div class="err"><h2><span style="font-size:32px">🌐</span>Cette page ne peut pas s'afficher dans Arthur XP</h2>
+  Le site <b>${esc(url)}</b> est sur le vrai Internet. Pour des raisons de sécurité, Arthur XP ne peut pas l'afficher dans sa fenêtre.<hr>
+  <p>👉 <a href="${esc(real)}" target="_blank" rel="noopener">Ouvrir ${esc(url)} dans Safari ↗</a></p>
+  <p>👉 <a data-go="recherche?q=${encodeURIComponent(url)}">Rechercher « ${esc(url)} »</a></p>
+  <p>👉 <a data-go="arthur.xp">Retour à l'accueil</a></p><hr><small style="color:#666">Erreur HTTP 403 — Interdit<br>Arthur XP Internet</small></div>`}
+ function jeux(){page.innerHTML=`<div class="pg"><h1 style="color:#245edc">🎮 Les jeux d'Arthur</h1>
+  <div class="gamecard"><span>🦖</span><div><b>Dino Course</b><br><small>Jouable ici même !</small><br><a data-go="dino.arthur.xp">▶ Jouer</a></div></div>
+  <div class="gamecard"><span>👼</span><div><b>Archange — Le Salut des Âmes</b><br><small>Paradis, Terre, Enfer. Bientôt en ligne.</small></div></div>
+  <div class="gamecard"><span>🎅</span><div><b>Santa Filou 3D</b><br><small>Le Père Noël et ses rennes. Bientôt en ligne.</small></div></div>
+  <div class="gamecard"><span>🍎</span><div><b>Lutin &amp; La Pomme</b><br><small>Le premier jeu, en pixel art rétro. Bientôt en ligne.</small></div></div></div>`}
+ function perso(){const n=store.get('visits',1336)+1;store.set('visits',n);const gb=store.get('guestbook',[{n:'Claude',m:'Super site, bravo !'}]);
+  page.innerHTML=`<div class="perso"><div class="marq"><span>★ Bienvenue sur mon site !!! ★ N'oublie pas de signer mon livre d'or ★ Site optimisé pour Arthur XP en 800x600 ★</span></div>
+  <h1>~ La page d'Arthur ~</h1><p class="blink">🚧 SITE EN CONSTRUCTION 🚧</p>
+  <p style="color:#fff;margin:10px 0">Salut, moi c'est Arthur ! Ici je parle de mes jeux vidéo, de cybersécurité et de plein d'autres trucs.</p>
+  <p>👉 <a data-go="jeux.arthur.xp" style="color:#ff0">Mes jeux</a> | <a data-go="code.arthur.xp" style="color:#ff0">J'apprends à coder</a></p>
+  <p style="margin:12px 0;color:#fff">Tu es le visiteur n° <span class="cnt">${String(n).padStart(6,'0')}</span></p>
+  <div class="gb"><b>📖 Livre d'or</b><form><input placeholder="Ton pseudo" maxlength="20" required><textarea placeholder="Ton message" rows="2" maxlength="200" required></textarea><button class="btn">Signer</button></form>
+  <div class="list">${gb.map(e=>`<div class="e"><b style="color:#ff0">${esc(e.n)}</b> : ${esc(e.m)}</div>`).join('')}</div></div>
+  <p style="font-size:11px;color:#888">© 2003 Arthur — Webmaster</p></div>`;
+  const f=page.querySelector('form');f.onsubmit=e=>{e.preventDefault();const [a,m]=f.querySelectorAll('input,textarea');gb.unshift({n:a.value,m:m.value});store.set('guestbook',gb.slice(0,30));perso()}}
+ function code(){page.innerHTML=`<div class="pg"><h1 style="color:#245edc">💻 Apprendre à coder</h1>
+  <p>L'<b>Invite de commandes</b> d'Arthur XP comprend le JavaScript. Ouvre-la depuis le bureau (⬛) et essaie :</p>
+  <pre style="background:#000;color:#0f0;padding:8px;margin:8px 0;white-space:pre-wrap">js 2 + 2
+js "Arthur".toUpperCase()
+js for(let i=1;i<=5;i++) print("Ligne " + i)</pre>
+  <p><b>Écrire un vrai programme :</b></p><ol style="margin-left:20px"><li>Ouvre le <b>Bloc-notes</b> et écris ton code, par exemple :<pre style="background:#eee;padding:6px;margin:4px 0">let nom = "Arthur";
+for (let i = 1; i <= 3; i++) {
+  print("Bonjour " + nom + " n°" + i);
+}</pre></li><li>Dans l'Invite de commandes, tape <b>run</b>.</li></ol>
+  <p style="margin-top:8px">Tape <b>help</b> dans la console pour voir toutes les commandes.</p>
+  <p style="margin-top:12px">Pour aller plus loin sur le vrai Web : <a href="https://developer.mozilla.org/fr/docs/Learn" target="_blank" rel="noopener">cours MDN ↗</a></p></div>`}
+ function dino(){page.innerHTML=`<div class="pg runner"><h2>🦖 Dino Course</h2><p style="font-size:13px">Touche le jeu pour sauter. Évite les cactus !</p><canvas></canvas><p style="text-align:center;font-size:13px">Record : <b class="best">${store.get('dinoBest',0)}</b></p></div>`;
+  const cv=page.querySelector('canvas'),ctx=cv.getContext('2d'),bestEl=page.querySelector('.best');
+  const dpr=devicePixelRatio||1,W=cv.clientWidth,H=170;cv.width=W*dpr;cv.height=H*dpr;ctx.scale(dpr,dpr);
+  const G=H-30;let y,vy,obs,t,score,speed,state='wait',raf;
+  const reset=()=>{y=G;vy=0;obs=[];t=0;score=0;speed=4.5};reset();
+  const jump=()=>{if(state!=='run'){reset();state='run';return}if(y>=G){vy=-10.5}};
+  cv.onpointerdown=e=>{e.preventDefault();jump()};
+  function loop(){raf=requestAnimationFrame(loop);ctx.clearRect(0,0,W,H);ctx.fillStyle='#555';ctx.fillRect(0,G+22,W,2);
+   if(state==='run'){t++;vy+=.6;y=Math.min(G,y+vy);if(t%Math.max(45,95-~~(score/8))===0&&Math.random()<.8)obs.push({x:W,s:Math.random()<.3?2:1});
+    speed+=.002;obs.forEach(o=>o.x-=speed);obs=obs.filter(o=>o.x>-40);score=~~(t/6);
+    for(const o of obs){if(o.x<52&&o.x+18*o.s>26&&y>G-18){state='dead';const b=store.get('dinoBest',0);if(score>b){store.set('dinoBest',score);bestEl.textContent=score}}}}
+   ctx.font='26px sans-serif';ctx.textBaseline='bottom';ctx.fillText('🦖',20,y+24);
+   obs.forEach(o=>{for(let i=0;i<o.s;i++)ctx.fillText('🌵',o.x+i*18,G+24)});
+   ctx.fillStyle='#333';ctx.font='bold 14px Verdana';ctx.textAlign='right';ctx.fillText(String(score).padStart(5,'0'),W-8,22);ctx.textAlign='center';
+   if(state==='wait')ctx.fillText('Touche pour commencer',W/2,H/2);
+   if(state==='dead')ctx.fillText('PERDU ! Touche pour rejouer',W/2,H/2);ctx.textAlign='left'}
+  loop();stop=()=>cancelAnimationFrame(raf)}
+ go('arthur.xp')}
+
+/* ---------- HACKXP (jeu de hacking éthique simulé) ---------- */
+const HFLAGS={m1a:['FLAG{base64_est_facile}',10],m1b:['FLAG{rot13_cesar}',10],m1c:['FLAG{password}',20],m2u:['FLAG{ftp_anonyme_danger}',30],m2r:['FLAG{sudo_find_root}',50]};
+const RANKS=[[0,'Débutant'],[20,'Apprenti'],[50,'Script kiddie'],[90,'Hacker'],[120,'Élite 🏆']];
+function makeHack(print,leave){
+ const got=()=>store.get('hackFlags',[]);
+ const pts=()=>got().reduce((s,k)=>s+(HFLAGS[k]?HFLAGS[k][1]:0),0);
+ const rank=()=>RANKS.filter(r=>pts()>=r[0]).pop()[1];
+ const IP='10.10.42.7';
+ let M=0,loc='kali',secret=null,dl=new Set();
+ const H={secret:false};
+ const rot13=s=>s.replace(/[a-z]/gi,c=>{const b=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+13)%26+b)});
+ const HASHDB={'5f4dcc3b5aa765d61d8327deb882cf99':'password','e10adc3949ba59abbe56e057f20f883e':'123456','d8578edf8458ce06fbc5bb76a58c5ca4':'qwerty'};
+ const KFILES=()=>M===1?{'message1.txt':'RkxBR3tiYXNlNjRfZXN0X2ZhY2lsZX0=','message2.txt':'SYNT{ebg13_prfne}','message3.txt':'Hash MD5 intercepté :\n5f4dcc3b5aa765d61d8327deb882cf99\n\nFormat du flag : FLAG{motdepasse}','wordlist.txt':'123456\npassword\nqwerty\nsoleil\nazerty\n(...14 millions de lignes...)'}
+  :M===2?Object.assign({'mission.txt':`Cible : ${IP} (serveur du Dr Pomme)\nObjectif : récupérer user.txt puis root.txt.\nCommence par scanner la machine avec nmap.`},dl.has('note.txt')?{'note.txt':'Salut lutin,\nJ\'ai réglé ton mot de passe : le nom de ton chat + son année de naissance (tout en minuscules).\nJ\'ai mis une photo de lui sur le site, dans un dossier caché.\n— Dr Pomme'}:{}):{};
+ const ok=k=>{const g=got();if(g.includes(k))return;g.push(k);store.set('hackFlags',g);};
+ const tip=t=>print('\n💡 '+t+'\n');
+ H.prompt=()=>secret?'Mot de passe : ':loc==='ftp'?'ftp> ':loc==='lutin'?'lutin@pomme:~$ ':loc==='root'?'root@pomme:~# ':'arthur@kali:~$ ';
+ H.intro=()=>{print(`
+ _   _            _    __  ______
+| | | | __ _  ___| | __\\ \\/ /  _ \\
+| |_| |/ _\` |/ __| |/ / \\  /| |_) |
+|  _  | (_| | (__|   <  /  \\|  __/
+|_| |_|\\__,_|\\___|_|\\_\\/_/\\_\\_|
+
+Bienvenue sur HackXP, Arthur !  Rang : ${rank()} (${pts()} pts)
+Tout ici est SIMULÉ. Dans la vraie vie, on ne pirate que des
+machines pour lesquelles on a l'autorisation (TryHackMe, etc.).
+
+Tape missions pour voir les missions, help pour l'aide, exit pour quitter.`)};
+ const missions=()=>{const g=got();print(`
+ [1] Messages secrets   — Cryptographie   ${['m1a','m1b','m1c'].filter(k=>g.includes(k)).length}/3 flags
+ [2] Le serveur du Dr Pomme — Pentest     ${['m2u','m2r'].filter(k=>g.includes(k)).length}/2 flags
+
+Tape start 1 ou start 2.`)};
+ const help=()=>print(`
+Commandes HackXP :
+  missions, start [n], score, hint, clear, exit
+  ls, cat [fichier], whoami, id
+  flag FLAG{...}          valide un flag
+Mission 1 :  base64 -d [texte], rot13 [texte], crack [hash]
+Mission 2 :  nmap [ip], ftp [ip], curl [url], gobuster [url],
+             ssh user@ip, sudo -l, sudo [commande]`);
+ const hints={1:['Lis les messages avec cat message1.txt.','Le message 1 finit par = : c\'est typique du Base64. Essaie base64 -d suivi du texte.','Le message 2 ressemble à "FLAG" décalé de 13 lettres : rot13.','Un hash ne se « décode » pas, il se casse avec une liste de mots : crack [hash].'],
+  2:['Commence par nmap '+IP+' pour voir les ports ouverts.','Le FTP accepte souvent l\'utilisateur anonymous. Essaie ftp '+IP+'.','Dans le FTP : ls puis get note.txt, puis bye et cat note.txt.','Cherche les dossiers cachés du site : gobuster http://'+IP,'Regarde curl http://'+IP+'/secret pour trouver le nom et l\'année du chat.','Connecte-toi : ssh lutin@'+IP+' avec le mot de passe nomduchat+année.','Une fois connecté : cat user.txt puis sudo -l pour voir tes droits.','find peut lancer un shell : sudo find . -exec /bin/sh \;','En root : cat /root/root.txt']};
+ let hi={1:0,2:0};
+ H.handle=c=>{
+  if(secret){const s=secret;secret=null;H.secret=false;
+   if(s==='ftp'){print('230 Connexion réussie (anonyme).\nRemote system type is UNIX.');loc='ftp';tip('Le compte FTP « anonymous » est ouvert à tout le monde : grosse faille de configuration !');return}
+   if(s==='ssh'){if(c.trim().toLowerCase()==='biscuit2019'){loc='lutin';print('\nWelcome to Ubuntu 22.04 LTS\nlutin@pomme:~$ — Tu es connecté !');tip('Mot de passe deviné grâce à des infos publiques (OSINT). Un mot de passe ne doit jamais être lié à ta vie perso.')}else print('Permission denied, please try again.');return}}
+  const [cmd,...rest]=c.split(/\s+/);const arg=rest.join(' ');const low=cmd.toLowerCase();
+  if(low==='exit'||low==='logout'||low==='bye'||low==='quit'){
+   if(loc==='root'){loc='lutin';print('exit');return}if(loc==='lutin'){loc='kali';print('Connection to '+IP+' closed.');return}
+   if(loc==='ftp'){loc='kali';print('221 Au revoir.');return}leave();return}
+  if(low==='help')return help();
+  if(low==='missions')return missions();
+  if(low==='clear'||low==='cls')return 'clear';
+  if(low==='score'){const g=got();print(`\nRang : ${rank()} — ${pts()} pts\nFlags : ${g.length}/5`);return}
+  if(low==='start'){const n=+arg;if(n!==1&&n!==2){print('Utilisation : start 1 ou start 2');return}M=n;loc='kali';dl.clear();
+   print(n===1?'\n=== Mission 1 : Messages secrets ===\nOn a intercepté 3 messages codés. Décode-les pour trouver les flags.\nTape ls pour voir les fichiers.':'\n=== Mission 2 : Le serveur du Dr Pomme ===\nLe Dr Pomme t\'a autorisé à tester la sécurité de son serveur ('+IP+').\nTape cat mission.txt pour commencer.');return}
+  if(low==='hint'||low==='indice'){if(!M){print('Lance d\'abord une mission : start 1');return}const L=hints[M];print('🔎 '+L[Math.min(hi[M],L.length-1)]);hi[M]++;return}
+  if(low==='flag'){const f=Object.entries(HFLAGS).find(([k,v])=>v[0].toLowerCase()===arg.toLowerCase());
+   if(!f){print('❌ Flag incorrect.');return}if(got().includes(f[0])){print('Déjà validé !');return}ok(f[0]);print(`✅ Flag validé ! +${f[1][1]} pts  →  Rang : ${rank()} (${pts()} pts)`);
+   if(got().length===5)print('\n🏆 Toutes les missions sont terminées ! Prochaine étape : la salle « Pre Security » sur le vrai TryHackMe.');return}
+  if(low==='whoami'){print(loc==='kali'?'arthur':loc==='ftp'?'anonymous':loc);return}
+  if(low==='id'){print(loc==='root'?'uid=0(root) gid=0(root) groups=0(root)':loc==='lutin'?'uid=1000(lutin) gid=1000(lutin) groups=1000(lutin)':'uid=1000(arthur) gid=1000(arthur)');return}
+  if(!M){print('Lance d\'abord une mission : tape missions');return}
+  /* --- FTP --- */
+  if(loc==='ftp'){if(low==='ls'||low==='dir'){print('-rw-r--r--  1 ftp ftp  212 Nov 17 note.txt');return}
+   if(low==='get'){if(/note\.txt/i.test(arg)){dl.add('note.txt');print('226 Transfert terminé : note.txt (212 octets)')}else print('550 Fichier introuvable.');return}
+   print('?Commande FTP invalide. (ls, get [fichier], bye)');return}
+  /* --- machine distante --- */
+  if(loc==='lutin'||loc==='root'){
+   if(low==='ls'){print(loc==='root'&&/root/.test(arg)?'root.txt':'user.txt');return}
+   if(low==='cat'){if(/user\.txt/.test(arg)){print(HFLAGS.m2u[0]);tip('Flag utilisateur trouvé ! Valide-le avec : flag '+HFLAGS.m2u[0]+'\nMaintenant il faut devenir root (administrateur). Essaie sudo -l');return}
+    if(/root\.txt/.test(arg)){if(loc==='root'){print(HFLAGS.m2r[0]);tip('Tu es root, tu contrôles toute la machine. Valide avec : flag '+HFLAGS.m2r[0])}else print('cat: /root/root.txt: Permission denied');return}
+    print('cat: '+arg+': Aucun fichier ou dossier de ce type');return}
+   if(low==='sudo'){if(arg==='-l'){print('L\'utilisateur lutin peut exécuter :\n    (root) NOPASSWD: /usr/bin/find');tip('lutin peut lancer « find » en tant que root sans mot de passe. Certains programmes comme find peuvent ouvrir un shell : c\'est une élévation de privilèges.');return}
+    if(/^find\b/.test(arg)&&/-exec/.test(arg)&&/sh/.test(arg)){loc='root';print('# Tu es maintenant root !');return}
+    print('Désolé, lutin n\'a pas le droit d\'exécuter cette commande.');return}
+   print(cmd+': commande introuvable');return}
+  /* --- Kali (ta machine) --- */
+  const F=KFILES();
+  if(low==='ls'){print(Object.keys(F).join('   ')||'(vide)');return}
+  if(low==='cat'){if(F[arg]!==undefined)print(F[arg]);else print('cat: '+arg+': Aucun fichier ou dossier de ce type');return}
+  if(low==='base64'){const t=arg.replace(/^-d\s*/,'').trim();if(!/^-d/.test(arg)){print('Ajoute -d pour décoder : base64 -d [texte]');return}
+   try{const r=decodeURIComponent(escape(atob(t)));print(r);if(r===HFLAGS.m1a[0])tip('Le Base64 n\'est PAS un chiffrement : n\'importe qui peut le décoder. Valide : flag '+r)}catch(e){print('base64: entrée invalide')}return}
+  if(low==='rot13'){const r=rot13(arg);print(r);if(r===HFLAGS.m1b[0])tip('ROT13 décale chaque lettre de 13 places : c\'est le chiffre de César, cassable en 2 secondes. Valide : flag '+r);return}
+  if(low==='crack'||low==='john'||low==='hashcat'){const h=arg.trim().toLowerCase();if(!h){print('Utilisation : crack [hash]');return}
+   print('Chargement de wordlist.txt…\nTest de 14 344 391 mots de passe…');const p=HASHDB[h];
+   if(p){print(`\n[+] Trouvé : ${h} → ${p}`);tip('« password » fait partie des mots de passe les plus utilisés au monde, il est cassé instantanément. Flag : FLAG{'+p+'}')}else print('\n[-] Aucun mot de passe trouvé dans la liste.');return}
+  if(low==='nmap'){if(!arg.includes(IP)){print('Utilisation : nmap '+IP);return}
+   print(`Starting Nmap 7.94\nNmap scan report for ${IP}\nPORT   STATE SERVICE\n21/tcp open  ftp     (vsftpd 3.0.5)\n22/tcp open  ssh     (OpenSSH 8.9)\n80/tcp open  http    (Apache 2.4)\n\nNmap done: 1 IP address scanned`);tip('3 ports ouverts = 3 portes d\'entrée possibles : FTP (fichiers), SSH (connexion à distance) et HTTP (site web).');return}
+  if(low==='ftp'){if(!arg.includes(IP)){print('Utilisation : ftp '+IP);return}print('Connected to '+IP+'.\n220 (vsFTPd 3.0.5)\nName: anonymous');secret='ftp';H.secret=false;H.handle('');return}
+  if(low==='gobuster'||low==='dirb'){if(!arg.includes(IP)){print('Utilisation : gobuster http://'+IP);return}
+   print('Gobuster v3.6 — recherche de dossiers…\n/index.html   (Status: 200)\n/secret       (Status: 200)\n/admin        (Status: 403)\n/server-status (Status: 403)');tip('gobuster teste des milliers de noms de dossiers. « Caché » ne veut pas dire « protégé » !');return}
+  if(low==='curl'||low==='wget'){if(!arg.includes(IP)){print('Utilisation : curl http://'+IP);return}
+   if(/secret/.test(arg)){print('<html>\n<h1>Mes photos 🐱</h1>\n<img src="chat.jpg">\n<p>Voici Biscuit, le chat de lutin. Il est né en 2019 !</p>\n</html>');return}
+   if(/admin/.test(arg)){print('403 Forbidden');return}
+   print('<html>\n<h1>Bienvenue chez le Dr Pomme 🍎</h1>\n<p>Site en construction.</p>\n<!-- TODO : supprimer le dossier de photos -->\n</html>');return}
+  if(low==='ssh'){if(!/^lutin@/.test(arg)){print(arg.includes('@')?'Permission denied (utilisateur inconnu).':'Utilisation : ssh utilisateur@'+IP);return}secret='ssh';H.secret=true;print(`${arg}'s password:`);return}
+  if(low==='sudo'){print('arthur n\'a pas besoin de sudo ici. Connecte-toi d\'abord à la cible.');return}
+  print(cmd+': commande introuvable (tape help)')};
+ return H}
+
+/* ---------- APP: CMD ---------- */
+function mkCmd(b,w){
+ b.innerHTML='<div class="cmd"><div class="out"></div><div class="ln"><span class="pr"></span><input autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send"></div></div>';
+ const box=b.querySelector('.cmd'),out=b.querySelector('.out'),inp=b.querySelector('input'),pr=b.querySelector('.pr');
+ const FS={'C:\\':['Documents and Settings','Program Files','ARTHURXP'],'C:\\Documents and Settings':['Arthur'],'C:\\Documents and Settings\\Arthur':['Bureau','Mes documents'],'C:\\Documents and Settings\\Arthur\\Mes documents':['Notes.txt','Mon dessin.bmp','BTS SAM.doc'],'C:\\Documents and Settings\\Arthur\\Bureau':[],'C:\\Program Files':['Internet','Paint','Demineur'],'C:\\ARTHURXP':['system32']};
+ const FILES=new Set(['Notes.txt','Mon dessin.bmp','BTS SAM.doc']);
+ const COLORS={0:'#000',1:'#000080',2:'#008000',3:'#008080',4:'#800000',5:'#800080',6:'#808000',7:'#c0c0c0',8:'#808080',9:'#00f',a:'#0f0',b:'#0ff',c:'#f00',d:'#f0f',e:'#ff0',f:'#fff'};
+ let cwd='C:\\Documents and Settings\\Arthur',hist=[],hp=0,matrix=null;
+ const print=(s='')=>{out.appendChild(document.createTextNode(String(s)+'\n'));box.scrollTop=box.scrollHeight};
+ let mode=null;
+ const prompt=()=>{pr.textContent=mode?mode.prompt():cwd+'>';inp.type=mode&&mode.secret?'password':'text';box.style.color=mode?'#0f0':box.style.color};
+ print('Arthur XP [version 1.0]\n(C) Copyright Arthur Corp.\n\nTape help pour voir les commandes.\n');prompt();
+ box.onclick=()=>inp.focus();
+ inp.onkeydown=e=>{if(e.key==='Enter'){const c=inp.value;inp.value='';print(pr.textContent+(mode&&mode.secret?'••••••':c));if(c.trim()){hist.push(c);hp=hist.length}run(c.trim());prompt();box.scrollTop=box.scrollHeight}
+  else if(e.key==='ArrowUp'&&hp>0){inp.value=hist[--hp];e.preventDefault()}else if(e.key==='ArrowDown'){hp=Math.min(hist.length,hp+1);inp.value=hist[hp]||''}};
+ const sp=(s,n)=>(s+' '.repeat(n)).slice(0,n);
+ function runJS(code,stmt){const lines=[];const p=(...a)=>lines.push(a.map(x=>typeof x==='object'?JSON.stringify(x):String(x)).join(' '));
+  try{let r;if(stmt)r=new Function('print','"use strict";'+code)(p);else try{r=new Function('print','"use strict";return ('+code+'\n)')(p)}catch(e){if(e instanceof SyntaxError)r=new Function('print','"use strict";'+code)(p);else throw e}
+   lines.forEach(l=>print(l));if(r!==undefined)print(typeof r==='object'?JSON.stringify(r):String(r))}
+  catch(e){lines.forEach(l=>print(l));print('Erreur : '+e.message)}}
+ w.onclose=()=>matrix&&clearInterval(matrix);
+ function run(c){if(mode){if(c&&mode.handle(c)==='clear')out.textContent='';return}if(!c)return;if(matrix){clearInterval(matrix);matrix=null}
+  const sp1=c.indexOf(' '),cmd=(sp1<0?c:c.slice(0,sp1)).toLowerCase(),arg=sp1<0?'':c.slice(sp1+1).trim();
+  switch(cmd){
+   case 'help':case 'aide':print(`Commandes disponibles :
+  cd [dossier]   Change de dossier (cd .. pour remonter)
+  cls            Efface l'écran
+  color [xy]     Change les couleurs (ex : color a, color 1f)
+  date / time    Affiche la date / l'heure
+  dir            Liste le contenu du dossier
+  echo [texte]   Affiche un texte
+  ipconfig       Configuration réseau
+  js [code]      Exécute du JavaScript (ex : js 6*7)
+  hack           Lance HackXP, le jeu de hacking éthique
+  matrix         ???
+  ping [site]    Teste une connexion
+  run            Exécute le code écrit dans le Bloc-notes
+  shutdown       Éteint l'ordinateur
+  start [app]    Ouvre une app : ie, notepad, calc, paint, mines, pc
+  tree           Affiche l'arborescence
+  type [fichier] Affiche un fichier texte
+  ver            Version du système
+  whoami         Qui suis-je ?
+  exit           Ferme la console
+
+Dans le code JS, utilise print("...") pour afficher.
+Attention : une boucle infinie bloque la page !`);break;
+   case 'cls':out.textContent='';break;
+   case 'ver':print('\nArthur XP [version 1.0.2026]\n');break;
+   case 'whoami':print('arthurxp\\arthur');break;
+   case 'date':print('La date du jour est : '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}));break;
+   case 'time':print("L'heure actuelle est : "+new Date().toLocaleTimeString('fr-FR'));break;
+   case 'echo':print(arg||'ECHO est activé.');break;
+   case 'dir':{const l=FS[cwd]||[];print('\n Répertoire de '+cwd+'\n');print(new Date().toLocaleDateString('fr-FR')+'  <REP>          .');l.forEach(f=>print(new Date().toLocaleDateString('fr-FR')+(FILES.has(f)?'         1 024 ':'  <REP>         ')+f));print(`      ${l.filter(f=>FILES.has(f)).length} fichier(s)\n      ${l.filter(f=>!FILES.has(f)).length+1} Rép(s)\n`);break}
+   case 'cd':case 'chdir':{if(!arg){print(cwd);break}let t;if(arg==='..'){t=cwd.lastIndexOf('\\')>2?cwd.slice(0,cwd.lastIndexOf('\\')):'C:\\'}else if(arg==='\\'||/^c:\\?$/i.test(arg))t='C:\\';
+    else{const n=(FS[cwd]||[]).find(f=>f.toLowerCase()===arg.toLowerCase()&&!FILES.has(f));if(n)t=(cwd.endsWith('\\')?cwd:cwd+'\\')+n}
+    if(t&&FS[t])cwd=t;else print('Le chemin d\'accès spécifié est introuvable.');break}
+   case 'tree':print('C:.\n├───Documents and Settings\n│   └───Arthur\n│       ├───Bureau\n│       └───Mes documents\n├───Program Files\n│   ├───Internet\n│   ├───Paint\n│   └───Demineur\n└───ARTHURXP\n    └───system32');break;
+   case 'type':if(/^notes\.txt$/i.test(arg))print(store.get('note',NOTE_DEF));else if(FILES.has(arg)||[...FILES].some(f=>f.toLowerCase()===arg.toLowerCase()))print('Ce fichier n\'est pas un fichier texte.');else print('Le fichier spécifié est introuvable.');break;
+   case 'color':{const v=(arg||'07').toLowerCase();const bg=v.length>1?COLORS[v[0]]:'#000',fg=COLORS[v[v.length-1]];if(!fg||!bg)print('Couleur inconnue. Exemples : color a, color 1f, color 0e');else{box.style.background=bg;box.style.color=fg}break}
+   case 'ipconfig':print('\nConfiguration IP de Arthur XP\n\nCarte Ethernet Connexion au réseau local :\n   Adresse IP. . . . . . . . . . . : 192.168.1.42\n   Masque de sous-réseau . . . . . : 255.255.255.0\n   Passerelle par défaut . . . . . : 192.168.1.1\n');break;
+   case 'ping':{const h=arg||'arthur.xp';print(`\nEnvoi d'une requête 'ping' sur ${h} avec 32 octets de données :`);let i=0;const iv=setInterval(()=>{const ms=8+~~(Math.random()*30);print(`Réponse de ${h} : octets=32 temps=${ms} ms TTL=117`);if(++i===4){clearInterval(iv);print('\n(Simulation — Arthur XP n\'envoie pas de vrais pings.)\n')}},600);break}
+   case 'start':{const map={ie:'ie',internet:'ie',iexplore:'ie',notepad:'notepad',calc:'calc',paint:'paint',mspaint:'paint',mines:'mines',winmine:'mines',pc:'pc',explorer:'pc',cmd:'cmd'};const k=map[arg.toLowerCase()];if(k)open(k);else print('Impossible de trouver « '+arg+' ». Essaie : ie, notepad, calc, paint, mines, pc');break}
+   case 'iexplore':case 'notepad':case 'calc':case 'mspaint':case 'winmine':case 'explorer':run('start '+cmd);break;
+   case 'js':if(!arg)print('Utilisation : js [code]   ex : js 2+2');else runJS(arg);break;
+   case 'run':{const code=store.get('note',NOTE_DEF);print('Exécution du Bloc-notes…\n');runJS(code,true);print('');break}
+   case 'matrix':{let n=0;matrix=setInterval(()=>{print(Array.from({length:40},()=>Math.random()<.5?' ':String.fromCharCode(0x30A0+~~(Math.random()*96))).join(''));if(++n>60){clearInterval(matrix);matrix=null;print('\nRéveille-toi, Arthur…')}},60);box.style.color='#0f0';break}
+   case 'hack':case 'hackxp':mode=makeHack(print,()=>{mode=null;box.style.color='';print('Retour à Arthur XP.')});mode.intro();break;
+   case 'shutdown':$('#smOff').click();break;
+   case 'exit':close('cmd');break;
+   default:print(`'${cmd}' n'est pas reconnu en tant que commande interne\nou externe, un programme exécutable ou un fichier de commandes.`)}}
+ setTimeout(()=>inp.focus(),100)}
+
+addEventListener('resize',()=>{for(const k in wins)wins[k].onresize&&wins[k].onresize()});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+boot();
+if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
+</script>
+</body>
+</html>
